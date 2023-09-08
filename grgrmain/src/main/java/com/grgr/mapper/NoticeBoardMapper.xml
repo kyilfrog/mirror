@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.grgr.mapper.NoticeBoardMapper">
+	<!-- 검색 조건문 -->
+	<!-- TC:제목+내용, T: 제목, W: 작성자, -->
+	<sql id="search">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<choose>
+				<when test="searchType == 'TC'.toString()">
+					notice_title like '%'||#{searchKeyword}||'%' OR notice_content like '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'T'.toString()">
+					notice_title like '%'||#{searchKeyword}||'%'
+				</when>
+				<!-- <when test='searchType == "W"'>
+					writer like '%'||#{searchKeyword}||'%'
+				</when> -->
+			</choose>
+		</trim>
+	</sql>
+	
+	<!-- 총게시글 수 -->
+	<select id="noticeBoardCount" resultType="int">
+		SELECT COUNT(*) FROM NOTICE_BOARD where  <include refid="search"/> 
+		notice_blindstate=1 
+	</select>
+
+	<!--게시글 입력(삽입) -->
+	<insert id="insertNoticeBoard">
+		<selectKey keyProperty="noticeBno" resultType="int"
+			order="BEFORE">
+			SELECT notice_seq.nextval FROM dual
+		</selectKey>
+		INSERT INTO NOTICE_BOARD
+		(NOTICE_BNO, UNO, NOTICE_TITLE, NOTICE_CONTENT, NOTICE_UPDATE_UNO)
+		VALUES (#{noticeBno},#{uno},#{noticeTitle},#{noticeContent},#{uno})
+	</insert>
+
+	<!-- 자신의 게시글 수정 -->
+	<update id="updateNoticeBoard">
+		update notice_board set
+		notice_title=#{noticeTitle},
+		notice_content = #{noticeContent}, notice_update=sysdate,
+		notice_update_uno=#{uno}
+		where notice_bno=#{noticeBno} and uno=#{uno}
+	</update>
+
+	<!-- 자신의 게시글 삭제 -->
+	<update id="deleteNoticeBoard">
+		update notice_board set notice_blindstate = 2,
+		notice_update=sysdate, notice_update_uno = #{uno}
+		where
+		notice_bno=#{noticeBno}
+		and uno=#{uno}
+	</update>
+
+	<!-- n번 게시글 -->
+	<select id="selectNoticeBoard" resultType="NoticeBoard">
+		select NOTICE_BNO, UNO,
+		NOTICE_TITLE, NOTICE_CONTENT, 
+		NOTICE_VIEW_CNT,
+		NOTICE_BLINDSTATE, NOTICE_REGDATE, NOTICE_UPDATE,
+		NOTICE_UPDATE_UNO from notice_board
+		where notice_bno=#{noticeBno}
+	</select>
+
+	<!-- 이전 글 번호 찾기 -->
+	<select id="selectPrevNoticeBno" resultType="int">
+		select max(NOTICE_BNO)
+		from notice_board where  <include refid="search"/> 
+		notice_bno &lt; #{noticeBno} and notice_blindstate = 1
+	</select> 
+
+	<!-- 다음 글 번호 찾기 -->
+ 	<select id="selectNextNoticeBno" resultType="int">
+		select min(NOTICE_BNO)
+		from notice_board where <include refid="search"/>
+		notice_bno &gt; #{noticeBno} and notice_blindstate = 1
+	</select> 
+
+	<!-- 게시글 목록 -->
+	<select id="selectNoticeBoardList" resultType="NoticeBoard">
+		SELECT * FROM (
+		SELECT ROWNUM NUM, NOTICE.* FROM (
+		SELECT NOTICE_BNO, UNO,
+		NOTICE_TITLE, NOTICE_CONTENT, 
+		NOTICE_VIEW_CNT,	
+		NOTICE_BLINDSTATE, NOTICE_REGDATE, NOTICE_UPDATE,
+		NOTICE_UPDATE_UNO
+		FROM
+		NOTICE_BOARD 
+		WHERE    <include refid="search"/> 
+		NOTICE_BLINDSTATE = 1
+		ORDER BY NOTICE_BNO DESC
+		) NOTICE
+		)
+		WHERE NUM BETWEEN #{startRow} AND
+		#{endRow}
+	</select>
+	
+	<!-- <if test='keyword!=null and keyword != ""'><include refid="search"></include></if> -->
+
+	<!-- 조회수 증가 -->
+	<update id="increaseNoticeViewCnt">
+		UPDATE notice_board
+		SET notice_view_cnt = notice_view_cnt +
+		1
+		WHERE notice_bno = #{noticeBno}
+	</update>
+
+</mapper>
+       

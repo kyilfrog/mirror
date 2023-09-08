@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.grgr.mapper.ProductBoardMapper">
+
+	<!-- 검색 조건문 -->
+	<!-- TC:제목+내용, T: 제목, W: 작성자, -->
+	<sql id="search">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<choose>
+				<when test="searchType == 'TC'.toString()">
+					P.product_title like '%'||#{searchKeyword}||'%' OR
+					P.product_content like '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'T'.toString()">
+					P.product_title like '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'W'.toString()">
+					U.nickname like '%'||#{searchKeyword}||'%'
+				</when>
+			</choose>
+		</trim>
+	</sql>
+
+	<!-- 총게시글 수 -->
+	<select id="productBoardCount" resultType="int">
+		SELECT COUNT(*)
+		FROM Product_BOARD P
+		JOIN USERINFO U ON P.UNO = U.UNO
+		WHERE
+		<include refid="search" />
+		P.product_blindstate=1
+	</select>
+
+
+	<!-- 게시판 등록 -->
+	<insert id="insertProduct">
+		<selectKey keyProperty="productId" resultType="int"
+			order="BEFORE">
+			SELECT PRODUCT_Id_SEQ.NEXTVAL
+			FROM DUAL
+		</selectKey>
+		insert into PRODUCT_BOARD (
+		PRODUCT_Id,
+		PRODUCT_TITLE,
+		PRODUCT_CONTENT,
+		PRODUCT_PRICE,
+		UNO, PRODUCT_UPDATE_UNO
+		) values (
+		#{productId},
+		#{productTitle},
+		#{productContent},
+		#{productPrice},
+		#{uno},
+		#{productUpdateUno}
+		)
+	</insert>
+
+	<!-- 게시판 목록 -->
+	<select id="selectProductBoardList" resultType="ProductBoardVO">
+		SELECT * FROM (
+		SELECT ROWNUM NUM, PRODUCT.* FROM (
+		SELECT
+		P.PRODUCT_ID,
+		P.PRODUCT_TITLE,
+		P.UNO,
+		P.PRODUCT_CONTENT,
+		P.PRODUCT_PRICE,
+		P.PRODUCT_VIEW_CNT,
+		P.PRODUCT_REPORT_NO,
+		P.PRODUCT_BLINDSTATE,
+		P.PRODUCT_REGDATE,
+		P.PRODUCT_UPDATE,
+		P.PRODUCT_UPDATE_UNO,
+		U.NICKNAME
+		FROM
+		PRODUCT_BOARD P
+		JOIN
+		USERINFO U on P.UNO = U.UNO
+		WHERE
+		<include refid="search" />
+		P.PRODUCT_BLINDSTATE = 1
+		ORDER BY P.PRODUCT_REGDATE DESC
+		) PRODUCT
+		)
+		WHERE NUM BETWEEN #{startRow} AND
+		#{endRow}
+
+	</select>
+
+	<!-- 게시글 조회 -->
+	<select id="selectProductBoard" resultType="ProductBoardVO">
+		SELECT
+		P.PRODUCT_ID,
+		P.UNO,
+		P.PRODUCT_TITLE, P.PRODUCT_CONTENT,
+		P.PRODUCT_VIEW_CNT,
+		P.PRODUCT_REPORT_NO,
+		P.PRODUCT_BLINDSTATE,
+		P.PRODUCT_REGDATE,
+		P.PRODUCT_UPDATE,
+		P.PRODUCT_UPDATE_UNO,
+		U.NICKNAME
+		from
+		PRODUCT_BOARD P
+		join
+		USERINFO U on P.UNO = U.UNO
+		where
+		P.PRODUCT_ID=#{productId}
+	</select>
+
+	<!-- 테이블 JOIN을 위한 부가 코드 -->
+	<resultMap id="productBoardUserinfo" type="ProductBoardVO">
+		<id property="productId" column="PRODUCT_Id" />
+		<result property="productTitle" column="PRODUCT_TITLE" />
+		<result property="productContent" column="PRODUCT_CONTENT" />
+		<result property="productPrice" column="PRODUCT_Price" />
+		<result property="productRegdate" column="PRODUCT_REGDATE" />
+		<association property="USERINFO" resultMap="USERINFOMap" />
+	</resultMap>
+
+	<resultMap id="userinfoMap" type="USERINFO">
+		<result property="nickName" column="nickname" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+	</resultMap>
+
+	<!-- 조인을 활용한 상품 판매자 정보 -->
+	<select id="getBoardUserInfo" resultType="ProductUserDTO">
+		SELECT
+		pb.PRODUCT_Id,
+		pb.PRODUCT_TITLE,
+		pb.PRODUCT_CONTENT,
+		pb.PRODUCT_Price,
+		pb.PRODUCT_REGDATE,
+		u.nickname,
+		u.phone,
+		u.email
+		FROM
+		PRODUCT_BOARD pb
+		JOIN
+		USERINFO u ON pb.UNO = u.uno
+		WHERE
+		pb.PRODUCT_Id =
+		#{productId}
+	</select>
+
+	<!-- 게시글 수정 -->
+	<update id="updateProduct">
+		update PRODUCT_BOARD set PRODUCT_TITLE =
+		#{productTitle}, PRODUCT_CONTENT =
+		#{productContent}, PRODUCT_PRICE =
+		#{productPrice},
+		PRODUCT_UPDATE =
+		sysdate, PRODUCT_UPDATE_UNO =#{uno}
+		where PRODUCT_ID =
+		#{productId} and UNO = #{uno}
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<update id="deleteProduct">
+		update product_board set product_blindstate = 3,
+		product_update=sysdate, product_update_uno = #{uno}
+		where
+		product_id=#{productId}
+		and uno=#{uno}
+	</update>
+
+	<!-- 이미지파일 업로드 : PRODUCT_FILE_UPDATE_UNO 는 로그인 기능 완성시 추가할 것 -->
+	<insert id="insertProductFile">
+		insert into product_file (product_file_no,
+		product_id,
+		product_file_origin, product_file_upload)
+		values
+		(product_file_seq.nextval,#{productId}, #{productFileOrigin},
+		#{productFileUpload})
+	</insert>
+
+	<!-- 이미지파일 검색 -->
+	<select id="selectProductFile">
+		select product_file_no, product_id,
+		product_file_origin,
+		product_file_upload from product_file where
+		Product_Id = #{productId}
+		order by
+		product_file_no
+	</select>
+
+	<!-- 이전 글 번호 찾기 -->
+	<select id="selectPrevProductId" resultType="int">
+		select max(P.Product_Id)
+		from PRODUCT_BOARD P
+		join USERINFO U on P.UNO =
+		U.UNO
+		where
+		<include refid="search" />
+		P.product_id &lt; #{productId} and P.product_blindstate = 1
+	</select>
+
+	<!-- 다음 글 번호 찾기 -->
+	<select id="selectNextProductId" resultType="int">
+		select min(P.Product_Id)
+		from PRODUCT_BOARD P
+		join USERINFO U on P.UNO =
+		U.UNO
+		where
+		<include refid="search" />
+		P.product_id &lt; #{productId} and P.product_blindstate = 1
+	</select>
+
+</mapper>

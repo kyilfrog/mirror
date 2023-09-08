@@ -1,0 +1,190 @@
+@charset "UTF-8";
+
+.common-input-style {
+	color: #c9d0f4;
+	background-color: #f5f7fe;
+	font-family: 'Nunito Sans', sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.25rem;
+	display: inline-block;
+	width: 100%;
+	height: 52px;
+	letter-spacing: 0.05rem;
+	padding: 15px 20px;
+	background-image: none;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	border: none;
+	border-radius: 8px;
+	-webkit-appearance: none;
+	appearance: none;
+	-webkit-transition: border-color ease-in-out 0.15s, -webkit-box-shadow
+		ease-in-out 0.15s;
+	transition: border-color ease-in-out 0.15s, -webkit-box-shadow
+		ease-in-out 0.15s;
+	-o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out
+		0.15s;
+	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s,
+		-webkit-box-shadow ease-in-out 0.15s;
+	box-shadow: 2px 2px 4px #e2e6fc, -2px -2px 4px #fff !important;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.email_check_button {
+	display: inline-block;
+	padding: 8px 16px;
+	background-color: #f5f7fe;
+	color: #5360de;
+	border: 2px solid;
+	border-radius: 50px;
+	box-shadow: inset 4px 4px 9px #e2e6fc, inset -6px -6px 13px #fff;
+	cursor: pointer;
+	font-size: 14px;
+	text-align: center;
+	text-decoration: none;
+	float: right; /* 버튼을 오른쪽에 위치시킴 */
+}
+
+}
+.user_input {
+	color: #c9d0f4;
+	background-color: #f5f7fe;
+	font-family: 'Nunito Sans', sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.25rem;
+	display: inline-block;
+	width: 100%;
+	height: 52px;
+	letter-spacing: 0.05rem;
+	padding: 15px 20px;
+	background-image: none;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	border: none;
+	border-radius: 8px;
+	-webkit-appearance: none;
+	appearance: none;
+	-webkit-transition: border-color ease-in-out 0.15s, -webkit-box-shadow
+		ease-in-out 0.15s;
+	transition: border-color ease-in-out 0.15s, -webkit-box-shadow
+		ease-in-out 0.15s;
+	-o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out
+		0.15s;
+	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s,
+		-webkit-box-shadow ease-in-out 0.15s;
+	box-shadow: 2px 2px 4px #e2e6fc, -2px -2px 4px #fff !important;
+}
+
+/* 중복아이디 존재하지 않는경우 */
+.id_input_re_1 {
+	color: green;
+	display: none;
+}
+/* 중복아이디 존재하는 경우 */
+.id_input_re_2 {
+	color: red;
+	display: none;
+}
+
+/* 중복닉네임 존재하지 않는경우 */
+.nickName_input_re_1 {
+	color: green;
+	display: none;
+}
+/* 중복닉네임 존재하는 경우 */
+.nickName_input_re_2 {
+	color: red;
+	display: none;
+}
+
+/* float 속성 해제 */
+.clearfix {
+	clear: both;
+}
+
+/* 유효성 검사 문구 */
+.final_id_ck {
+	display: none;
+}
+
+.invalid_id_format {
+	display: none;
+}
+
+.final_pw_ck {
+	display: none;
+}
+
+.final_pwck_ck {
+	display: none;
+}
+
+.final_name_ck {
+	display: none;
+}
+
+.final_email_ck {
+	display: none;
+}
+
+.final_phone_ck {
+	display: none;
+}
+
+.final_nickName_ck {
+	display: none;
+}
+
+.final_email_check_ck {
+	display: none;
+}
+
+.invalid_id_format {
+	display: none;
+}
+
+.invalid_phone_format {
+	display: none;
+}
+
+/* 비밀번호 확인 일치 유효성검사 */
+.pwck_input_re_1 {
+	color: green;
+	display: none;
+}
+
+.pwck_input_re_2 {
+	color: red;
+	display: none;
+}
+
+.correct {
+	color: green;
+}
+
+.incorrect {
+	color: red;
+}
+
+/* 여기부터 마이페이지 부분 */
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 15px; /* 버튼과 기타 내용 사이의 간격 추가 */
+}
+
+#email_check_input_box_false {
+	background-color: #ebebe4;
+}
+
+#email_check_input_box_true {
+	background-color: white;
+}

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.grgr.mapper.QnaCommentMapper">
+	<!-- n번 게시글의 댓글 수 / 페이징 처리에 필요함 -->
+	<select id="qnaCommentCount" resultType="int">
+		SELECT COUNT(*) FROM
+		QNA_COMMENT where
+		QNA_BNO=#{qnaBno}
+	</select>
+
+	<!-- 댓글 목록 = 조회 -->
+	<select id="selectQnaCommentList" resultType="QnaComment">
+		SELECT * FROM (
+		SELECT ROWNUM NUM, QNA.* FROM (
+		SELECT
+		QC.QNA_COMMENT_NO,
+		QC.UNO,
+		QC.QNA_BNO,
+		QC.QNA_COMMENT_CONTENT,
+		CASE
+		WHEN QC.QNA_COMMENT_GROUP = 0 THEN QC.QNA_COMMENT_NO
+		ELSE QC.QNA_COMMENT_GROUP
+		END AS QNA_COMMENT_GROUP,
+		QC.QNA_COMMENT_BLINDSTATE,
+		QC.QNA_COMMENT_REGDATE,
+		QC.QNA_COMMENT_UPDATE,
+		U.NICKNAME
+		FROM QNA_COMMENT QC
+		JOIN USERINFO U ON QC.UNO = U.UNO
+		WHERE QC.QNA_BNO=#{qnaBno}
+		ORDER BY
+		CASE
+		WHEN QC.QNA_COMMENT_GROUP = 0 THEN QC.QNA_COMMENT_NO
+		ELSE QC.QNA_COMMENT_GROUP
+		END,
+		QC.QNA_COMMENT_NO
+		) QNA
+		)
+		WHERE NUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+
+	<!-- 댓글 입력(삽입) : 최상위댓글 -> 자식댓글: 부모댓글의 그룹번호 받아아옴 
+		 - null일시, qna_comment_no = qna_comment_group 으로 설정되도록 -->
+	<insert id="insertQnaComment">
+		INSERT INTO QNA_COMMENT
+		(QNA_COMMENT_NO, QNA_BNO,
+		UNO, QNA_COMMENT_CONTENT, QNA_COMMENT_GROUP,
+		QNA_COMMENT_UPDATE_UNO)
+		VALUES (QNA_COMMENT_SEQ.NEXTVAL, #{qnaBno},
+		#{uno}, #{qnaCommentContent},
+		#{qnaCommentGroup}, #{uno})
+	</insert>
+
+	<!-- 자신의 댓글 수정 들다 loginUno 필요함 -->
+	<update id="updateQnaComment">
+		UPDATE QNA_COMMENT SET
+		QNA_COMMENT_CONTENT =
+		#{qnaCommentContent},
+		QNA_COMMENT_UPDATE = SYSDATE,
+		QNA_COMMENT_UPDATE_UNO=#{uno}
+		where QNA_BNO=#{qnaBno} and UNO=#{uno}
+	</update>
+
+	<!-- 자신의 댓글 삭제 -->
+	<update id="deleteQnaComment">
+		update QNA_COMMENT set QNA_COMMENT_BLINDSTATE = 3,
+		QNA_COMMENT_UPDATE= SYSDATE,
+		QNA_COMMENT_UPDATE_UNO = #{uno}
+		WHERE
+		QNA_COMMENT_NO=#{qnaCommentNo}
+		AND UNO = #{uno}
+		AND
+		QNA_COMMENT_BLINDSTATE = 1
+	</update>
+
+	<!-- 관리자가 댓글 숨김 -->
+	<update id="blindQnaComment">
+		UPDATE QNA_COMMENT SET
+		QNA_COMMENT_BLINDSTATE = 2,
+		QNA_COMMENT_UPDATE= SYSDATE,
+		QNA_COMMENT_UPDATE_UNO = #{uno}
+		WHERE
+		QNA_COMMENT_NO = #{qnaCommentNo}
+		AND #{userStatus} = 1
+		AND QNA_COMMENT_BLINDSTATE
+		= 1
+	</update>
+
+
+	<!-- 신고수 증가 > 문의게시판 미사용
+	<update id="increaseInfoCommentReportNo">
+		UPDATE INFO_COMMENT
+		SET
+		INFO_COMMENT_REPORTNO =
+		INFO_COMMENT_REPORTNO + 1
+		WHERE INFO_BNO = #{infoBno}
+	</update>
+	 -->
+	 
+</mapper>

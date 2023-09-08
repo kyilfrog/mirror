@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.grgr.mapper.UserMapper">
+
+	<!-- 회원가입 -->
+	<insert id="userJoin">
+		insert into USERINFO(UNO, USER_NAME, USER_ID,
+		USER_PW, NICKNAME, PHONE, EMAIL, BUSINESS_NO, user_status)
+		values(UNO_SEQ.NEXTVAL,
+		#{userName},#{userId}, #{userPw},
+		#{nickName},
+		#{phone}, #{email},
+		#{businessNo},2)
+	</insert>
+
+	<!-- 아이디 중복 검사 -->
+	<select id="idCheck" resultType="int">
+		select count(*) from USERINFO
+		where USER_ID = #{userId}
+	</select>
+
+	<!-- 닉네임 중복 검사 -->
+	<select id="nickNameCheck" resultType="int">
+		select count(*) from
+		USERINFO
+		where nickName = #{nickName}
+	</select>
+
+	<!-- 로그인 -->
+	<select id="userLogin" resultType="com.grgr.dto.UserVO">
+
+		select * from USERINFO where USER_ID = #{userId}
+	</select>
+
+
+
+	<select id="getAllUsers" resultType="com.grgr.dto.UserVO">
+    <![CDATA[
+    SELECT *
+    FROM (
+        SELECT ROWNUM AS rn, u.*
+        FROM (
+            SELECT UNO, USER_NAME, NICKNAME, USER_PW, USER_ID, PHONE, EMAIL, USER_STATUS, ACTIVE, POINT, BUSINESS_NO, LAST_LOGIN, REGDATE, USER_UPDATE, USER_UPDATE_UNO
+            FROM USERINFO
+            ORDER BY UNO DESC
+        ) u
+        WHERE ROWNUM <= #{endRow}
+    )
+    WHERE rn >= #{startRow}
+    ]]>
+	</select>
+
+	<select id="selectUserCount" resultType="int">
+		select count(*) from
+		userinfo
+	</select>
+
+	<!-- user-update 쿼리 -->
+	<update id="updateUser" parameterType="com.grgr.dto.UserVO">
+		UPDATE userinfo
+		SET user_name = #{userName},
+		nickname = #{nickName},
+		user_id = #{userId},
+		phone=#{phone},
+		email=#{email},
+		user_status=#{userStatus},
+		active=#{active},
+		point=#{point},
+		business_no=#{businessNo},
+		user_update_uno=7
+		WHERE uno = #{uno}
+	</update>
+
+	<!-- 아이디 찾기 -->
+	<select id="findUserIdByNameAndEmail"
+		resultType="java.lang.String">
+		SELECT user_id
+		FROM userinfo
+		WHERE user_name = #{name}
+		AND email = #{email}
+	</select>
+
+	<!-- 비밀번호 찾기 -->
+
+
+
+	<select id="findUserByIdAndEmail" parameterType="map"
+		resultType="com.grgr.dto.UserVO">
+		SELECT * FROM userinfo
+		WHERE user_id = #{userId}
+		AND email = #{email}
+	</select>
+
+	<!-- 사용자 비밀번호 업데이트 -->
+	<update id="updateUserPassword"
+		parameterType="com.grgr.dto.UserVO">
+		UPDATE userinfo
+		SET user_pw = #{userPw}
+		WHERE user_id = #{userId}
+	</update>
+
+	<!-- 회원 조회 -->
+	<select id="userProfile" resultType="com.grgr.dto.UserVO">
+		select * from USERINFO where
+		UNO = #{uno}
+	</select>
+
+	<!-- 회원정보 수정 --> <!-- 변경한 사람의 uno에 대한 코드 추가 필요(방법 의문) -->
+	<update id="updateUserProfile">
+		update USERINFO set PHONE = #{phone}, EMAIL =
+		#{email}, USER_PW = #{userPw}, BUSINESS_NO = #{businessNo},
+		USER_UPDATE_UNO = #{uno},
+		USER_UPDATE = sysdate
+		where UNO =#{uno}
+	</update>
+
+	<delete id="deleteUserProfile">
+		delete from USERINFO where UNO = #{uno}
+	</delete>
+
+	<!-- 내가 쓴 댓글 조회(조인) -->
+	<resultMap id="commentResultMap"
+		type="com.grgr.dto.MyCommentDTO">
+		<result column="BNO" property="bno" />
+		<result column="CONTENT" property="content" />
+		<result column="REGDATE" property="regdate" />
+		<result column="UNO" property="uno" />
+	</resultMap>
+
+
+	<select id="getCommentList" resultMap="commentResultMap"
+		parameterType="int">
+		SELECT *
+		FROM (
+		SELECT
+		UNO,
+		CONTENT,
+		REGDATE,
+		ROW_NUMBER()
+		OVER (ORDER BY REGDATE DESC) AS RN
+		FROM (
+		SELECT
+		INFO_COMMENT.UNO AS UNO,
+		INFO_COMMENT.INFO_COMMENT_CONTENT AS CONTENT,
+		INFO_COMMENT.INFO_COMMENT_REGDATE AS REGDATE
+		FROM
+		INFO_COMMENT
+		JOIN
+		USERINFO ON INFO_COMMENT.UNO = USERINFO.UNO
+		WHERE
+		INFO_COMMENT.UNO =
+		#{uno}
+
+		UNION ALL
+
+		SELECT
+		FREE_COMMENT.UNO AS UNO,
+		FREE_COMMENT.FREE_COMMENT_CONTENT AS CONTENT,
+		FREE_COMMENT.FREE_COMMENT_REGDATE AS REGDATE
+		FROM
+		FREE_COMMENT
+		JOIN
+		USERINFO ON FREE_COMMENT.UNO = USERINFO.UNO
+		WHERE
+		FREE_COMMENT.UNO =
+		#{uno}
+
+		UNION ALL
+
+		SELECT
+		QNA_COMMENT.UNO AS UNO,
+		QNA_COMMENT.QNA_COMMENT_CONTENT AS
+		CONTENT,
+		QNA_COMMENT.QNA_COMMENT_REGDATE AS REGDATE
+		FROM
+		QNA_COMMENT
+		JOIN
+		USERINFO
+		ON QNA_COMMENT.UNO = USERINFO.UNO
+		WHERE
+		QNA_COMMENT.UNO = #{uno}
+		)
+		COMBINED
+		) TEMP
+		WHERE RN BETWEEN #{startRow} AND #{endRow}
+
+	</select>
+
+	<!-- 내가 쓴 전체 댓글 갯수 -->
+	<select id="selectCommentCount" resultType="int"
+		parameterType="int">
+		SELECT COUNT(*) AS total_count
+		FROM (
+		SELECT
+		INFO_COMMENT.UNO AS UNO
+		FROM INFO_COMMENT
+		WHERE INFO_COMMENT.UNO =
+		#{uno}
+		UNION ALL
+		SELECT QNA_COMMENT.UNO AS UNO
+		FROM QNA_COMMENT
+		WHERE
+		QNA_COMMENT.UNO
+		= #{uno}
+		) total
+	</select>
+
+	<!-- 내가 쓴 게시글 조회(조인) -->
+	<resultMap id="boardWriteResultMap"
+		type="com.grgr.dto.MyBoardWriteDTO">
+		<result column="TITLE" property="title" />
+		<result column="CONTENT" property="content" />
+		<result column="REGDATE" property="regdate" />
+		<result column="VIEW_CNT" property="viewCnt" />
+		<result column="NICKNAME" property="nickName" />
+		<result column="UNO" property="uno" />
+	</resultMap>
+	<select id="getBoardWriteList" resultMap="boardWriteResultMap"
+		parameterType="int">
+		SELECT *
+		FROM (
+		SELECT
+		UNO,
+		TITLE,
+		CONTENT,
+		VIEWCNT,
+		REGDATE,
+		NICKNAME,
+		ROW_NUMBER() OVER (ORDER BY REGDATE DESC) AS RN
+		FROM (
+		SELECT
+		INFO_BOARD.UNO AS UNO,
+		INFO_BOARD.INFO_TITLE AS TITLE,
+		INFO_BOARD.INFO_CONTENT AS CONTENT,
+		INFO_BOARD.INFO_VIEW_CNT AS
+		VIEWCNT,
+		INFO_BOARD.INFO_REGDATE AS
+		REGDATE,
+		USERINFO.NICKNAME AS
+		NICKNAME
+		FROM INFO_BOARD
+		JOIN USERINFO ON
+		INFO_BOARD.UNO = USERINFO.UNO
+		WHERE INFO_BOARD.UNO = #{uno}
+
+		UNION ALL
+
+		SELECT
+		QNA_BOARD.UNO AS UNO,
+		QNA_BOARD.QNA_TITLE AS TITLE,
+		QNA_BOARD.QNA_CONTENT AS CONTENT,
+		QNA_BOARD.QNA_VIEW_CNT AS VIEWCNT,
+		QNA_BOARD.QNA_REGDATE AS REGDATE,
+		USERINFO.NICKNAME AS NICKNAME
+		FROM QNA_BOARD
+		JOIN USERINFO ON
+		QNA_BOARD.UNO = USERINFO.UNO
+		WHERE QNA_BOARD.UNO = #{uno}
+
+		UNION ALL
+
+		SELECT
+		FREE_BOARD.UNO AS UNO,
+		FREE_BOARD.FREE_TITLE AS TITLE,
+		FREE_BOARD.FREE_CONTENT AS CONTENT,
+		FREE_BOARD.FREE_VIEW_CNT AS
+		VIEWCNT,
+		FREE_BOARD.FREE_REGDATE AS
+		REGDATE,
+		USERINFO.NICKNAME AS
+		NICKNAME
+		FROM
+		FREE_BOARD
+		JOIN USERINFO ON
+		FREE_BOARD.UNO = USERINFO.UNO
+		WHERE
+		FREE_BOARD.UNO = #{uno}
+		) COMBINED
+		)
+		TEMP
+		WHERE RN BETWEEN
+		#{startRow} AND
+		#{endRow}
+	</select>
+
+	<!-- 내가 쓴 전체 게시글 갯수 -->
+	<select id="selectWriteCount" resultType="int"
+		parameterType="int">
+		SELECT COUNT(*) AS total_count
+		FROM (
+		SELECT
+		INFO_BOARD.UNO AS UNO
+		FROM INFO_BOARD
+		WHERE INFO_BOARD.UNO = #{uno}
+		UNION ALL
+		SELECT QNA_BOARD.UNO AS UNO
+		FROM QNA_BOARD
+		WHERE QNA_BOARD.UNO
+		= #{uno}
+		UNION ALL
+		SELECT FREE_BOARD.UNO AS UNO
+		FROM FREE_BOARD
+		WHERE
+		FREE_BOARD.UNO = #{uno}
+		) total
+	</select>
+
+
+	<!-- 검색 조건문 -->
+	<!-- TC:제목+내용, T: 제목, C: 내용, -->
+	<sql id="search">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<choose>
+				<when test="searchType == 'TC'.toString()">
+					INFO_BOARD.INFO_TITLE like
+					'%'||#{searchKeyword}||'%' OR
+					INFO_BOARD.INFO_CONTENT like
+					'%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'T'.toString()">
+					INFO_BOARD.INFO_TITLE like
+					'%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'C'.toString()">
+					INFO_BOARD.INFO_CONTENT '%'||#{searchKeyword}||'%'
+				</when>
+			</choose>
+		</trim>
+	</sql>
+
+	<!-- 위치 정보 업데이트 -->
+	<update id="getAddressFromCoordinate"
+		parameterType="java.util.Map">
+		UPDATE userinfo
+		SET user_loc = #{address}
+		WHERE user_id = #{loginId}
+	</update>
+
+</mapper>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">	
+<mapper namespace="com.grgr.mapper.QnaBoardMapper">	
+	<!-- 검색 조건문 -->
+	<!-- TC:제목+내용, T: 제목, W: 작성자, -->
+	<sql id="search">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<choose>
+				<when test="searchType == 'TC'.toString()">
+					Q.QNA_TITLE LIKE '%'||#{searchKeyword}||'%' OR 
+					Q.QNA_CONTENT LIKE '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'T'.toString()">
+					Q.QNA_TITLE LIKE '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'W'.toString()">
+					U.NICKNAME LIKE '%'||#{searchKeyword}||'%'
+				</when>
+			</choose>
+		</trim>
+	</sql>
+ 
+	<!-- 총 게시글 수 -->
+	<select id="qnaBoardCount" resultType="int">
+		SELECT COUNT(*) 
+		FROM QNA_BOARD Q 
+		JOIN USERINFO U ON Q.UNO = U.UNO
+		WHERE <include refid="search"/>
+		Q.QNA_BLINDSTATE=1
+		<if test="qnaKeyword != null and qnaKeyword != ''">
+			AND Q.QNA_KEYWORD = #{qnaKeyword}
+		</if>
+	</select>
+	
+<!-- 		<include refid="search" />
+		<if test="qnaKeyword != null and qnaKeyword != ''">
+		AND (Q.QNA_KEYWORD = 'member' OR Q.QNA_KEYWORD = 'trade')
+		</if> -->
+	
+	<!-- 게시글 삽입 -->
+	<insert id="insertQnaBoard">
+		<selectKey keyProperty="qnaBno" resultType="int" order="BEFORE">
+			SELECT qna_seq.nextval FROM dual
+		</selectKey>
+			INSERT INTO QNA_BOARD
+			(QNA_BNO, UNO, QNA_KEYWORD, QNA_TITLE,
+			QNA_CONTENT, QNA_UPDATE_UNO)
+			VALUES(#{qnaBno},
+			#{uno}, #{qnaKeyword}, #{qnaTitle}, #{qnaContent}, #{uno})
+	</insert>	
+	
+	<!-- 자신의 게시글 수정 -->
+	<update id="updateQnaBoard">
+		UPDATE QNA_BOARD SET
+			QNA_TITLE=#{qnaTitle}, QNA_CONTENT=#{qnaContent}
+				, QNA_UPDATE=SYSDATE, QNA_UPDATE_UNO=#{uno}
+		WHERE QNA_BNO=#{qnaBno} AND UNO=#{uno}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<update id="deleteQnaBoard">
+		UPDATE QNA_BOARD SET QNA_BLINDSTATE=3,
+			QNA_UPDATE=SYSDATE, QNA_UPDATE_UNO=#{uno}
+		WHERE QNA_BNO=#{qnaBno}
+		AND UNO=#{uno}
+	</update>
+	
+	<!-- 관리자가 게시물 숨김 -->
+	<update id="blindQnaBoard">
+		update qna_board set
+		qna_blindstate = 2,
+		qna_update=SYSDATE, qna_update_uno = #{uno}
+		where
+		qna_bno=#{qnaBno}
+		and #{userStatus} = 1
+		and qna_blindstate = 1
+	</update> 
+	 
+	<!-- n번 게시글 -->
+	<select id="selectQnaBoard" resultType="QnaBoard">
+		SELECT
+		Q.QNA_BNO, Q.UNO,
+		Q.QNA_KEYWORD, Q.QNA_TITLE, Q.QNA_CONTENT,
+		Q.QNA_VIEW_CNT,
+		Q.QNA_BLINDSTATE, Q.QNA_REGDATE,
+		Q.QNA_UPDATE,
+		Q.QNA_UPDATE_UNO,
+		U.NICKNAME
+		from
+		QNA_BOARD Q
+		join
+		USERINFO U on Q.UNO = U.UNO
+		where
+		Q.QNA_BNO=#{qnaBno}
+	</select>
+	
+	<!-- 이전 글 번호 찾기 -->
+	<select id="selectPrevQnaBno" resultType="int">
+		select max(Q.QNA_BNO)
+		from QNA_BOARD Q 
+		join USERINFO U on Q.UNO = U.UNO 
+		where <include refid="search"/>
+		Q.QNA_BNO &lt; #{qnaBno} AND Q.QNA_BLINDSTATE = 1
+		<if test="qnaKeyword != null and qnaKeyword != ''">
+			AND Q.QNA_KEYWORD = #{qnaKeyword}
+		</if>
+	</select>
+
+	<!-- 다음 글 번호 찾기 -->
+	<select id="selectNextQnaBno" resultType="int">
+		SELECT MIN(Q.QNA_BNO)
+		FROM QNA_BOARD Q 
+		JOIN USERINFO U ON Q.UNO = U.UNO
+		WHERE <include refid="search"/>
+		Q.QNA_BNO &gt; #{qnaBno} AND Q.QNA_BLINDSTATE = 1
+		<if test="qnaKeyword != null and qnaKeyword != ''">
+			AND Q.QNA_KEYWORD = #{qnaKeyword}
+		</if>
+	</select>
+	 
+	<!-- 게시글 목록 -->
+	<select id="selectQnaBoardList" resultType="QnaBoard">
+		SELECT * 
+		FROM (SELECT ROWNUM NUM, QNA.* 
+			FROM(SELECT Q.QNA_BNO, Q.UNO, Q.QNA_KEYWORD, Q.QNA_TITLE
+			, SUBSTR(Q.QNA_CONTENT,1,40) AS QNA_CONTENT, Q.QNA_VIEW_CNT	
+				, Q.QNA_BLINDSTATE, Q.QNA_REGDATE, Q.QNA_UPDATE, Q.QNA_UPDATE_UNO
+				, U.NICKNAME
+			FROM QNA_BOARD Q JOIN USERINFO U ON Q.UNO = U.UNO
+			WHERE <include refid="search"/>
+			Q.QNA_BLINDSTATE=1
+			<if test="qnaKeyword != null and qnaKeyword != ''">
+				AND Q.QNA_KEYWORD = #{qnaKeyword}
+			</if>
+			ORDER BY Q.QNA_BNO DESC)
+			QNA)
+		 WHERE NUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="increaseQnaViewCnt">
+		update qna_board set qna_view_cnt = qna_view_cnt+1
+		where qna_bno=#{qnaBno}
+	</update>
+</mapper>

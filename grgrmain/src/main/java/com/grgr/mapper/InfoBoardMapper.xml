@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.grgr.mapper.InfoBoardMapper">
+	<!-- 검색 조건문 -->
+	<!-- TC:제목+내용, T: 제목, W: 작성자, -->
+	<sql id="search">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<choose>
+				<when test="searchType == 'TC'.toString()">
+					I.info_title like '%'||#{searchKeyword}||'%' OR
+					I.info_content like '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'T'.toString()">
+					I.info_title like '%'||#{searchKeyword}||'%'
+				</when>
+				<when test="searchType == 'W'.toString()">
+					U.nickname like '%'||#{searchKeyword}||'%'
+				</when>
+			</choose>
+		</trim>
+	</sql>
+
+	<!-- 총게시글 수 -->
+	<select id="infoBoardCount" resultType="int">
+		SELECT COUNT(*)
+		FROM INFO_BOARD I
+		JOIN USERINFO U ON I.UNO = U.UNO
+		WHERE
+		<include refid="search" />
+		I.info_Loc='강남구' AND I.info_blindstate=1
+		<if test="infoKeyword != null and infoKeyword != ''">
+			AND I.info_keyword = #{infoKeyword}
+		</if>
+	</select>
+
+	<!--게시글 입력(삽입) -->
+	<insert id="insertInfoBoard">
+		<selectKey keyProperty="infoBno" resultType="int"
+			order="BEFORE">
+			SELECT INFO_SEQ.NEXTVAL  FROM dual
+		</selectKey>
+		INSERT INTO INFO_BOARD
+		(INFO_BNO, UNO, INFO_KEYWORD, INFO_TITLE,
+		INFO_CONTENT, INFO_LOC, INFO_UPDATE_UNO)
+		VALUES (#{infoBno},
+		#{uno},#{infoKeyword},#{infoTitle},#{infoContent},#{infoLoc},#{uno})
+	</insert>
+
+	<!-- 자신의 게시글 수정 -->
+	<update id="updateInfoBoard">
+		update info_board set
+		info_title=#{infoTitle},
+		info_content = #{infoContent}, info_update=sysdate,
+		info_update_uno=#{uno},
+		info_keyword=#{infoKeyword}
+		where info_bno=#{infoBno} and uno=#{uno}
+	</update>
+
+	<!-- 자신의 게시글 삭제 -->
+	<update id="deleteInfoBoard">
+		update info_board set info_blindstate = 3,
+		info_update=sysdate, info_update_uno = #{uno}
+		where
+		info_bno=#{infoBno}
+		and uno=#{uno}
+	</update>
+
+	<!-- 관리자가 게시물 숨김 -->
+	<update id="blindInfoBoard">
+		update info_board set
+		info_blindstate = 2,
+		info_update=sysdate, info_update_uno = #{uno}
+		where
+		info_bno=#{infoBno}
+		and #{userStatus} = 1
+		and info_blindstate = 1
+	</update>
+
+	<!-- n번 게시글 -->
+	<select id="selectInfoBoard" resultType="InfoBoard">
+		SELECT
+		I.INFO_BNO, I.UNO,
+		I.INFO_KEYWORD, I.INFO_TITLE, I.INFO_CONTENT, I.INFO_LOC,
+		I.INFO_VIEW_CNT,
+		I.INFO_REPORT_NO,
+		I.INFO_BLINDSTATE, I.INFO_REGDATE,
+		I.INFO_UPDATE,
+		I.INFO_UPDATE_UNO,
+		U.NICKNAME
+		from
+		INFO_BOARD I
+		join
+		userinfo U on I.UNO = U.UNO
+		where
+		I.INFO_BNO=#{infoBno}
+	</select>
+
+	<!-- 이전 글 번호 찾기 -->
+	<select id="selectPrevInfoBno" resultType="int">
+		select max(I.INFO_BNO)
+		from INFO_BOARD I
+		join USERINFO U on I.UNO = U.UNO
+		where
+		<include refid="search" />
+		I.info_Loc='강남구' and I.info_bno  &lt; #{infoBno} and I.info_blindstate = 1
+		<if test="infoKeyword != null and infoKeyword != ''">
+			and I.info_keyword = #{infoKeyword}
+		</if>
+	</select>
+
+	<!-- 다음 글 번호 찾기 -->
+	<select id="selectNextInfoBno" resultType="int">
+		select min(I.INFO_BNO)
+		from INFO_BOARD I
+		join USERINFO U on I.UNO = U.UNO
+		where
+		<include refid="search" />
+		I.info_Loc='강남구' and I.info_bno &gt; #{infoBno} and I.info_blindstate = 1
+		<if test="infoKeyword != null and infoKeyword != ''">
+			and I.info_keyword = #{infoKeyword}
+		</if>
+	</select>
+
+
+
+	<!-- 게시글 목록 -->
+	<select id="selectInfoBoardList" resultType="InfoBoard">
+		SELECT * FROM (
+		SELECT ROWNUM NUM, INFO.* FROM (
+		SELECT
+		I.INFO_BNO,
+		I.UNO,
+		I.INFO_KEYWORD,
+		I.INFO_TITLE, 
+		SUBSTR(I.INFO_CONTENT,1,40) AS INFO_CONTENT, 
+		I.INFO_LOC,
+		I.INFO_VIEW_CNT,
+		I.INFO_REPORT_NO,
+		I.INFO_BLINDSTATE, I.INFO_REGDATE,
+		I.INFO_UPDATE,
+		I.INFO_UPDATE_UNO,
+		U.NICKNAME
+		FROM
+		INFO_BOARD I
+		JOIN
+		USERINFO U on I.UNO = U.UNO
+		WHERE
+		<include refid="search" />
+		I.INFO_LOC = #{infoLoc} AND I.INFO_BLINDSTATE = 1
+		<if test="infoKeyword != null and infoKeyword != ''">
+			and I.info_keyword = #{infoKeyword}
+		</if>
+		ORDER BY I.INFO_BNO DESC
+		) INFO
+		)
+		WHERE NUM BETWEEN #{startRow} AND
+		#{endRow}
+	</select>
+
+
+
+	<!-- 좋아요 check => BNO가 하나만 존재해야 하므로 BOARDSEQ를 하나만 써야하지않을까? -->
+	<select id="likeCheck" parameterType="map" resultType="int">
+		select
+		count(*) from like where bno = #{infoBno} and uno = #{uno}
+	</select>
+
+
+	<!-- 조회수 증가 -->
+	<update id="increaseInfoViewCnt">
+		UPDATE info_board
+		SET info_view_cnt = info_view_cnt +
+		1
+		WHERE info_bno = #{infoBno}
+	</update>
+
+
+	<!-- 신고수 증가 -->
+	<update id="increaseInfoReportNo">
+		UPDATE info_board
+		SET
+		info_report_no = info_report_no +
+		1
+		WHERE info_bno = #{infoBno}
+	</update>
+
+	<!-- 이미지파일 업로드 : INFO_FILE_UPDATE_UNO 는 로그인 기능 완성시 추가할 것 -->
+	<insert id="insertInfoFile">
+		insert into info_file (info_file_no, info_bno,
+		info_file_origin, info_file_upload)
+		values
+		(info_file_seq.nextval,#{infoBno}, #{infoFileOrigin},
+		#{infoFileUpload})
+	</insert>
+
+
+	<!-- 이미지파일 검색 -->
+	<select id="selectInfoFile">
+		select info_file_no, info_bno, info_file_origin,
+		info_file_upload from info_file where info_bno = #{infoBno}
+		order by
+		info_file_no
+	</select>
+
+
+
+</mapper>
+       

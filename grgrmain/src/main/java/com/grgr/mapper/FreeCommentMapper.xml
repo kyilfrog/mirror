@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.grgr.mapper.FreeCommentMapper">
+	<!-- n번 게시글의 댓글 수 / 페이징 처리에 필요함 -->
+	<select id="freeCommentCount" resultType="int">
+		SELECT COUNT(*) FROM
+		FREE_COMMENT where
+		FREE_BNO=#{freeBno}
+	</select>
+
+
+	<!-- 댓글 목록 = 조회 -->
+	<select id="selectFreeCommentList" resultType="FreeComment">
+		SELECT * FROM (
+		SELECT ROWNUM NUM, FREE.* FROM (
+		SELECT
+		IC.FREE_COMMENT_NO,
+		IC.UNO,
+		IC.FREE_BNO,
+		IC.FREE_COMMENT_REPORTNO,
+		IC.FREE_COMMENT_CONTENT,
+		CASE
+		WHEN IC.FREE_COMMENT_GROUP = 0 THEN IC.FREE_COMMENT_NO
+		ELSE IC.FREE_COMMENT_GROUP
+		END AS FREE_COMMENT_GROUP,
+		IC.FREE_COMMENT_BLINDSTATE,
+		IC.FREE_COMMENT_REGDATE,
+		IC.FREE_COMMENT_UPDATE,
+		U.NICKNAME
+		FROM FREE_COMMENT IC
+		JOIN FREEINFO U ON IC.UNO = U.UNO
+		WHERE IC.FREE_BNO=#{freeBno}
+		ORDER BY
+		CASE
+		WHEN IC.FREE_COMMENT_GROUP = 0 THEN IC.FREE_COMMENT_NO
+		ELSE IC.FREE_COMMENT_GROUP
+		END,
+		IC.FREE_COMMENT_NO
+		) FREE
+		)
+		WHERE NUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+
+	<!-- 댓글 입력(삽입) : 최상위댓글 -> 자식댓글: 부모댓글의 그룹번호 받아아옴 - null일시, info_comment_no 
+		= info_comment_group 으로 설정되도록 -->
+	<insert id="insertFreeComment">
+		INSERT INTO FREE_COMMENT
+		(FREE_COMMENT_NO, FREE_BNO,
+		UNO, FREE_COMMENT_CONTENT, FREE_COMMENT_GROUP,
+		FREE_COMMENT_UPDATE_UNO)
+		VALUES (FREE_COMMENT_SEQ.NEXTVAL, #{freeBno},
+		#{uno}, #{freeCommentContent},
+		#{freeCommentGroup}, #{uno})
+	</insert>
+
+	<!-- 자신의 댓글 수정 들다 loginUno 필요함 -->
+	<update id="updateFreeComment">
+		UPDATE FREE_COMMENT SET
+		FREE_COMMENT_CONTENT =
+		#{freeCommentContent},
+		FREE_COMMENT_UPDATE = SYSDATE,
+		FREE_COMMENT_UPDATE_UNO=#{uno}
+		where FREE_BNO=#{freeBno} and UNO=#{uno}
+	</update>
+
+	<!-- 자신의 댓글 삭제 -->
+	<update id="deleteFreeComment">
+		UPDATE FREE_COMMENT SET FREE_COMMENT_BLINDSTATE = 3,
+		FREE_COMMENT_UPDATE= SYSDATE,
+		FREE_COMMENT_UPDATE_UNO = #{uno}
+		WHERE
+		FREE_COMMENT_NO=#{freeCommentNo}
+		AND UNO = #{uno}
+		AND
+		FREE_COMMENT_BLINDSTATE = 1
+	</update>
+
+	<!-- 관리자가 댓글 숨김 -->
+	<update id="blindFreeComment">
+		UPDATE FREE_COMMENT SET
+		FREE_COMMENT_BLINDSTATE = 2,
+		FREE_COMMENT_UPDATE= SYSDATE,
+		FREE_COMMENT_UPDATE_UNO = #{uno}
+		WHERE
+		FREE_COMMENT_NO = #{freeCommentNo}
+		AND #{userStatus} = 1
+		AND FREE_COMMENT_BLINDSTATE
+		= 1
+	</update>
+
+
+	<!-- 신고수 증가 -->
+	<update id="increaseFreeCommentReportNo">
+		UPDATE FREE_COMMENT
+		SET
+		FREE_COMMENT_REPORTNO =
+		FREE_COMMENT_REPORTNO + 1
+		WHERE FREE_BNO = #{freeBno}
+	</update>
+
+</mapper>

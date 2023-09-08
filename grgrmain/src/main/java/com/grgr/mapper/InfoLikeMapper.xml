@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.grgr.mapper.InfoLikeMapper">
+
+	<!-- 좋아요 삽입 -->
+	<insert id="insertMyInfoLike">
+		INSERT INTO INFO_LIKE
+		(INFO_LIKE_NO, INFO_BNO, UNO) 
+		VALUES (INFO_LIKE_SEQ.NEXTVAL,#{infoBno}, #{uno} )
+	</insert>
+
+	<!-- 좋아요 삭제 -->
+	<delete id="deleteMyInfoLike">
+		DELETE FROM INFO_LIKE WHERE INFO_BNO = #{infoBno} AND UNO=#{uno}
+	</delete>
+	
+	<!-- 좋아요 상태 :해당 사용자가 좋아요 표시를 했는지 여부 -->
+	<select id="getMyLikeStatus">
+		select count(*) from info_like where INFO_BNO = #{infoBno} AND UNO=#{uno}
+	</select>
+	
+	<!-- 게시글의 총좋아요 갯수  -->
+	<select id="InfoLikeCnt">
+		select count(*) from info_like where info_bno = #{infoBno}
+	</select>
+	
+</mapper>
+       
