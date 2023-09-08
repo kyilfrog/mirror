@@ -4,13 +4,13 @@
 
 	<!-- 회원가입 -->
 	<insert id="userJoin">
-		insert into USERINFO(UNO, USER_NAME, USER_ID,
-		USER_PW, NICKNAME, PHONE, EMAIL, BUSINESS_NO, user_status)
-		values(UNO_SEQ.NEXTVAL,
-		#{userName},#{userId}, #{userPw},
-		#{nickName},
-		#{phone}, #{email},
-		#{businessNo},2)
+		INSERT INTO USERINFO(UNO, USER_NAME, USER_ID,
+		USER_PW, NICKNAME, PHONE, EMAIL, BUSINESS_NO, USER_STATUS)
+		VALUES(UNO_SEQ.NEXTVAL,
+		#{USERNAME},#{USERID}, #{USERPW},
+		#{NICKNAME},
+		#{PHONE}, #{EMAIL},
+		#{BUSINESSNO},2)
 	</insert>
 
 	<!-- 아이디 중복 검사 -->
