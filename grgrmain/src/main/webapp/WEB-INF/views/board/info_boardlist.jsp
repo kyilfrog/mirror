@@ -91,7 +91,7 @@
 			<!-- 키워드 -->
 			<ul class="list-inline text-center mb-30" >
 
-				<li><a href="<c:url value="/infoboard/list"/>" class="btn btn-outline-primary m-y-10 mr-10" >강남구</a></li>
+				<li><a href="<c:url value="/infoboard/list"/>" class="btn btn-outline-primary m-y-10 mr-10" >${pager.searchCondition.loginLocation}</a></li>
 				<!-- ${userInfo_Loc} -->
 				<li id="keyword-button"><a href="<c:url value="/infoboard/list?keyword=food"/>" class="btn btn-outline-primary m-y-10 mr-10" >맛집후기</a>
 				</li>
@@ -279,7 +279,8 @@
 	<script>
 		$(document).ready(
 				function() {
-
+					var loginLocation = ${sessionScope.loginLocation}
+					console.log("Location : "+loginLocation)
 					var keywordInput = $('input[name="searchKeyword"]');
 					$('#search-button').click(
 							function() {
