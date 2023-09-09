@@ -1,57 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">	
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.grgr.mapper.ReportQnaBoardMapper">
-	
-	<!-- 게시글 신고 -->
+
+	<!-- 게시글 신고 삽입 -->
 	<insert id="insertReportQnaBoard">
-		<selectKey resultType="int" keyProperty="reportQnaBoardno" order="BEFORE">
+		<selectKey resultType="int" keyProperty="reportQnaBoardno"
+			order="BEFORE">
 			SELECT REPORT_QNA_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
 		INSERT INTO REPORT_QNA
-		(REPORT_QNABOARD_NO, UNO, QNA_BNO, REPORT_REASON)
-		VALUES(#{reportQnaBoardNo}, #{uno}, #{qnaBno}, #{reportReason})
+		(REPORT_QNABOARD_NO, UNO, QNA_BNO,
+		REPORT_REASON)
+		VALUES(#{reportQnaBoardNo}, #{uno}, #{qnaBno},
+		#{reportReason})
 	</insert>
-	
+
+	<!-- 문의게시글 총 신고수 -->
+	<select id="reportQnaBoardCount" resultType="int">
+		SELECT COUNT(*)
+		FROM REPORT_QNA RQ
+		JOIN USERINFO U ON RQ.UNO = U.UNO
+		WHERE
+		REPORT_STATUS = 1
+	</select>
+
 	<!-- 게시글 카운트 증가 -->
 	<update id="increaseReportQnaBoard">
 		UPDATE REPORT_QNA
 		SET REPORT_CNT = REPORT_CNT + 1
 		WHERE REPORT_QNABOARD_NO = #{reportQnaBoardNo}
 	</update>
-	
+
 	<!-- 관리자가 신고글 삭제 -->
-	<!-- => 관리자(유저 상태: 1)가 게시글을 삭제하면 게시글 상태변경(처리완료: 2)-->
+	<!-- => 관리자(유저 상태: 1)가 게시글을 삭제하면 게시글 상태변경(처리완료: 2) -->
 	<update id="deleteReportQnaBoard">
 		UPDATE REPORT_QNA
 		SET UNO = #{uno},
 		QNA_BNO = #{qnaBno},
 		REPORT_UPDATE = SYSDATE,
-		REPORT_UPDATE_UNO = #{reportUpdateUno},
-		WHERE 
+		REPORT_UPDATE_UNO = #{reportUpdateUno}
+		AND REPORT_STATUS = 2
+		WHERE
 		#{userStatus} = 1
 		AND REPORT_QNABOARD_NO = #{reportQnaBoardNo}
-		AND REPORT_STATUS = 2
+		AND REPORT_STATUS = 1
 	</update>
-	
+
 	<!-- 신고 게시글 조회 -->
 	<select id="selectReportQnaBoard" resultType="ReportQnaBoard">
 		SELECT * FROM REPORT_QNA
-		WHERE 
-		REPORT_QNABOARD_NO = #{reportQnaBoardNo}		
+		WHERE
+		REPORT_QNABOARD_NO = #{reportQnaBoardNo}
 	</select>
-	
+
 	<!-- 신고 게시글 리스트 -->
-	<select id="selectReportQnaBoardList" resultType="ReportQnaBoard">
+	<select id="selectReportQnaBoardList"
+		resultType="ReportQnaBoard">
 		SELECT * FROM (
 		SELECT ROWNUM RN, RQ.* FROM(
 		SELECT *
-		FROM REPORT_QNA
+		FROM
+		REPORT_QNA
 		WHERE
 		JOIN
 		USERINFO U ON RQ.UNO = U.UNO
-		ORDER BY RQ.REPORT_QNABOARD_NO DESC
+		ORDER BY
+		RQ.REPORT_QNABOARD_NO DESC
 		) RQ
-		)		
+		)
 		WHERE RN BETWEEN #{startRow} AND
 		#{endRow}
 	</select>

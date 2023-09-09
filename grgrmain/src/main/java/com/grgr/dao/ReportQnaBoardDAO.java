@@ -1,11 +1,11 @@
-package com.grgr.mapper;
+package com.grgr.dao;
 
 import java.util.List;
 import java.util.Map;
 
 import com.grgr.dto.ReportQnaBoard;
 
-public interface ReportQnaBoardMapper {
+public interface ReportQnaBoardDAO {
 	int insertReportQnaBoard(Map<String, Object> map);//신고게시글 삽입
 	int reportQnaBoardCount(Map<String, Object> map);//총 신고게시글 수
 	int increaseReportQnaBoard(int reportQnaBoardNo);//신고게시글 카운트

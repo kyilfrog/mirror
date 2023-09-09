@@ -26,27 +26,31 @@
 	margin-bottom: 20px; /* 아래쪽 여백을 20px로 설정 */
 	clear: both;
 }
-.comment-style{
+
+.comment-style {
 	font-size: 15px;
-	font-weight:normal;
-	
+	font-weight: normal;
 }
-.comment{
+
+.comment {
 	border-top: 1px solid #97989d;
 }
 </style>
 </head>
 <body>
-<!-- 헤더 -->
-   <jsp:include page="/WEB-INF/views/tiles/header.jsp"/>
-   <!-- 배너 -->
-   <c:set var="boardName" value="문의게시판" />
-   <header class="xl bg-img bg-fixed" style="height: 300px; padding-top: 200px;">
-      <div class="container text-center">
-         <h1 class="page-title">QNA</h1>
-         <p class="w-50 m-x-auto mb-30"><c:out value="${boardName}" /></p>
-      </div>
-      <!-- / container -->
+	<!-- 헤더 -->
+	<jsp:include page="/WEB-INF/views/tiles/header.jsp" />
+	<!-- 배너 -->
+	<c:set var="boardName" value="문의게시판" />
+	<header class="xl bg-img bg-fixed"
+		style="height: 300px; padding-top: 200px;">
+		<div class="container text-center">
+			<h1 class="page-title">QNA</h1>
+			<p class="w-50 m-x-auto mb-30">
+				<c:out value="${boardName}" />
+			</p>
+		</div>
+		<!-- / container -->
 	</header>
 
 	<div id="preloader">
@@ -66,7 +70,9 @@
 					<a href="#x"
 						class="d-inline title-color primary-hover fs-24 fw-bold mb-15"
 						style="margin: 10px">${qnaBoard.qnaTitle} </a>
+
 					
+
 					<%-- 세션!! <c:if test="${qnaBoard.uno==loginUno }"> --%>
 					<c:if test="${qnaBoard.uno==sessionScope.loginUno }">
 						<!-- 수정버튼 제출시 제출된 게시글로 진입 + 자신의 게시글에서 글목록 누를시 1페이지로 이동할 것  -->
@@ -91,10 +97,45 @@
 							class="btn btn-xs btn-primary pill"
 							style="float: right; font-size: 15px; margin: 10px"><span>숨김</span></a>
 					</c:if>
+					
+					<!-- 신고 버튼 -->
+					<button type="button" class="btn btn-xs btn-primary pill"
+						data-toggle="modal" data-target="reportModal"
+						onclick="openReportModal()">
+						<span>신고</span>
+					</button>
+
+					<!-- Modal -->
+					<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title" id="reportModalLabel">신고하기</h4>
+									<hr>
+								</div>
+								<div class="modal-body">
+									<form id="reportForm">
+										<div class="custom-margin">
+											<label for="modal-reportReason-input">신고사유</label>
+										</div>
+										<div class="custom-margin">
+											<input type="text" id="modal-reportReason-input"
+												name="reportReason">
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-primary" id="reportButton">신고</button>
+									<button type="button" class="btn btn-primary" id="closeButton" onclick="closeReportModal()">취소</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
 					<p
 						class="fs-12 post-meta-small p-y-15 pl-15 mb-15 border-secondary"
 						style="clear: both; padding: 10px">
-						
+
 						<i class="fas fa-user mr-5"></i>${qnaBoard.nickname } <span
 							class="mr-5 ml-5 text-muted">|</span><i
 							class="fas fa-calendar-alt mr-5"></i>${qnaBoard.qnaRegdate }<span
@@ -104,7 +145,9 @@
 							<c:when test="${qnaBoard.qnaKeyword=='trade'}">상권회원</c:when>
 						</c:choose>
 					</p>
-						
+					
+					
+
 					<p class="m-y-30">${qnaBoard.qnaContent}</p>
 					<!-- 보던페이지로 이동 -->
 					<a
@@ -113,14 +156,15 @@
 						style="float: right; font-size: 15px"><span>글목록</span></a>
 				</div>
 				<!-- / column -->
-				
- 				<!-- 이전글, 다음글 -->
+
+				<!-- 이전글, 다음글 -->
 				<nav aria-label="pager" style="clear: both; padding-top: 30px">
 					<ul class="pager">
 						<c:if test="${!isFirstPost }">
 							<li class="pager-left"><a
 								href="<c:url value='/qnaboard/read?${searchCondition.getQueryString()}&qnaBno=${prevQnaBno}'/>">
-									<i class="fas fa-arrow-left"></i> <span class="ml-5">이전글</span></a></li>
+									<i class="fas fa-arrow-left"></i> <span class="ml-5">이전글</span>
+							</a></li>
 						</c:if>
 						<c:if test="${isFirstPost }">
 							<li class="pager-left disabled"><i class="fas fa-arrow-left"></i>
@@ -130,7 +174,8 @@
 						<c:if test="${!isLastPost}">
 							<li class="pager-right"><a
 								href="<c:url value='/qnaboard/read?${searchCondition.getQueryString()}&qnaBno=${nextQnaBno}'/>">
-									<span class="mr-5">다음글</span> <i class="fas fa-arrow-right"></i></a></li>
+									<span class="mr-5">다음글</span> <i class="fas fa-arrow-right"></i>
+							</a></li>
 						</c:if>
 
 						<c:if test="${isLastPost}">
@@ -139,18 +184,20 @@
 						</c:if>
 					</ul>
 				</nav>
-				
+
 				<!-------------------------------------------댓글영역 ----------------------------------------------->
 
-				<i class="far fa-comments fs-20 text-warning d-block mb-15" style="border-top: 1px solid #97989d; padding-top: 15px">댓글</i>
+				<i class="far fa-comments fs-20 text-warning d-block mb-15"
+					style="border-top: 1px solid #97989d; padding-top: 15px">댓글</i>
 
 				<!-- 댓글 출력 -->
-				<ul id="comments-list" style="border-bottom: solid 1px #97989d; padding-left:0px">
+				<ul id="comments-list"
+					style="border-bottom: solid 1px #97989d; padding-left: 0px">
 
 				</ul>
 
 				<!-- 댓글 제출 폼 -->
-				<div id="reply-form" >
+				<div id="reply-form">
 					<form id="replyForm">
 						<textarea id="reply" class="form-control border-faded" rows="15"
 							placeholder="댓글을 입력하세요"></textarea>
@@ -188,7 +235,7 @@
 		data-nav-status="toggle"><i class="fas fa-chevron-up"></i></a>
 
 	<!-- footer 영역 -->
-	<jsp:include page="/WEB-INF/views/tiles/footer.jsp"/>
+	<jsp:include page="/WEB-INF/views/tiles/footer.jsp" />
 
 	<!-- core JavaScript -->
 	<script
@@ -211,6 +258,19 @@
 	<script
 		src="${pageContext.request.contextPath}/assets/js/jquery.shuffle.min.js"></script>
 	<script src="${pageContext.request.contextPath}/assets/js/portfolio.js"></script>
+
+	<!-- 신고 스크립트 -->
+	<script>
+		function openReportModal() {
+	        $('#reportModal').modal('show');
+	    }
+		
+		function closeReportModal() {
+	        $('#reportModal').modal('hide');
+	    }
+	
+	</script>
+
 	<!-- 댓글기능 관련 스크립트  -->
 	<script>
 		const url = new URL(window.location.href);
