@@ -66,7 +66,7 @@ public class InfoCommentController {
 		infoCommentService.modifyInfoComment(infoComment);
 		return new ResponseEntity<String>("MOD_OK", HttpStatus.OK);
 	}
-
+ 
 	// 댓글 삭제(본인)
 	@PutMapping("/remove/{infoCommentNo}")
 	public ResponseEntity<String> infoCommentRemove(@PathVariable int infoCommentNo, HttpSession session)
