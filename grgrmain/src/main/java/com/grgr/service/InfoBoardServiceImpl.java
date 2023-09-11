@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -151,11 +152,11 @@ public class InfoBoardServiceImpl implements InfoBoardService {
 	}
 	
 	@Override
-	public void removeInfoFile(int infoFileNo) throws FileDeleteException {
-		int result = infoBoardDAO.deleteInfoFile(infoFileNo);
+	@Transactional
+	public void removeInfoFiles(List<Integer> deleteFileList) throws FileDeleteException {
 		
-		if(result<1) {
-			throw new FileDeleteException("이미지 삭제에 실패하였습니다.");
+		for(Integer fileNo : deleteFileList) {
+			infoBoardDAO.deleteInfoFile(fileNo);
 		}
 	}
 

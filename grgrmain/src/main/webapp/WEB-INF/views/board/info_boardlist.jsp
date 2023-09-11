@@ -274,8 +274,6 @@
 	<script>
 		$(document).ready(
 				function() {
-					var loginLocation = ${sessionScope.loginLocation}
-					console.log("Location : "+loginLocation)
 					var keywordInput = $('input[name="searchKeyword"]');
 					$('#search-button').click(
 							function() {

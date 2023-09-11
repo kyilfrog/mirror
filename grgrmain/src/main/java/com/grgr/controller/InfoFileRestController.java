@@ -1,10 +1,14 @@
 package com.grgr.controller;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.grgr.exception.FileDeleteException;
@@ -27,10 +31,10 @@ public class InfoFileRestController {
 	private final InfoBoardService infoBoardService;
 	
 	//이미지 삭제 버튼 클릭시 이미지 삭제
-	@DeleteMapping("/delete/{infoFileNo}")
-	public ResponseEntity<String> deleteInfoImg(@PathVariable int infoFileNo) throws FileDeleteException{
+	@DeleteMapping("/delete")
+	public ResponseEntity<String> deleteInfoImg(@RequestBody List<Integer> deleteFileList) throws FileDeleteException{
 		
-		infoBoardService.removeInfoFile(infoFileNo);
+		infoBoardService.removeInfoFiles(deleteFileList);
 		
 		return new ResponseEntity<String>("img_del_ok", HttpStatus.OK);
 	}
