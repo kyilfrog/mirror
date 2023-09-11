@@ -25,6 +25,6 @@ public interface InfoBoardService {
 	Integer prevInfoBno(SearchCondition searchCondition, int infoBno);
 	Integer nextInfoBno(SearchCondition searchCondition, int infoBno);
 	Map<String, Object> getInfoBoardList(SearchCondition searchCondition);
-	void removeInfoFile(int infoFileNo) throws FileDeleteException;
+	void removeInfoFiles(List<Integer> deleteFileList) throws FileDeleteException;
 	
 }
