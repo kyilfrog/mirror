@@ -167,19 +167,19 @@
 						<!-- / input-group -->
 					</div>
 
-					<c:if test="${productBoard.uno==sessionScope.loginUno}">
+					<c:if
+						test="${loginUserStatus == '3' && productBoard.uno == sessionScope.loginUno}">
 						<!-- 수정버튼 제출시 제출된 게시글로 진입 + 자신의 게시글에서 글목록 누를시 원래보던 페이지로 이동할 것  -->
 						<a
 							href="<c:url value='/productboard/modify${searchCondition.getQueryString()}&productId=${productBoard.productId}'/>"
 							class="btn btn-xs btn-primary pill mt-3" style="font-size: 15px;"><span>수정</span></a>
-					</c:if>
 
-					<c:if test="${productBoard.uno==sessionScope.loginUno}">
 						<!-- 자신의 글일시 해당 글번호의 글을 삭제할 수 있음 -->
 						<a
 							href="<c:url value='/productboard/remove${searchCondition.getQueryString()}&productId=${productBoard.productId}'/>"
 							class="btn btn-xs btn-primary pill mt-3" style="font-size: 15px;"><span>삭제</span></a>
 					</c:if>
+
 
 					<c:if test="${sessionScope.loginUserStatus == 1 }">
 						<!-- 관리자는 해당 글번호의 글을 숨김처리할 수 있음 -->
@@ -228,49 +228,6 @@
 							</div>
 							<!-- / table-overflow -->
 						</div>
-						<div class="tab-pane fade mt-30" id="reviews" role="tabpanel">
-							<div class="table-overflow">
-								<table class="table table-xl mb-0">
-									<tbody>
-										<tr>
-											<td>
-												<div class="list-media img-lg">
-													<div class="list-item">
-														<div class="media-img">
-															<img class="circle"
-																src="${pageContext.request.contextPath}/assets/images/placeholder-mini.jpg"
-																alt="">
-														</div>
-														<!-- / media-img -->
-														<ul id="comments-list">
-															<div class="info">
-																<span class="title" ${comment.nickname }></span> <span
-																	class="sub-title mb-5">@mdo</span> <span
-																	class="sub-title opc-5">Jun 07, 2020</span>
-															</div>
-														</ul>
-														<!-- / info -->
-													</div>
-													<!-- / list-item -->
-												</div> <!-- / list-media -->
-											</td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td>Awesome T-Shirt! I love it.</td>
-											<td>
-												<p class="ratings mb-0">
-													<i class="fas fa-star"></i> <i class="fas fa-star"></i> <i
-														class="fas fa-star"></i> <i class="fas fa-star"></i> <i
-														class="fas fa-star"></i>
-												</p>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-							<!-- / table-overflow -->
-						</div>
 						<!-- / tab-pane -->
 					</div>
 					<!-- / tab-content -->
@@ -310,7 +267,7 @@
 			</nav>
 			<!-- 페이지 네비 -->
 		</div>
-		</div>
+
 		<!-- 대댓글 폼 : 대댓 버튼 누를시 댓글아래로 이동하여 style -> block-->
 		<div id="comment-reply" data-group=""
 			style="display: none; width: 95%; display: flex; justify-content: flex-end; align-items: center; margin: 10px;">
@@ -321,7 +278,7 @@
 					class="btn btn-outline-secondary">등록</button>
 			</div>
 		</div>
-		</div>
+
 		<!-- / container -->
 	</section>
 
@@ -370,38 +327,6 @@
 			animateOut : 'fadeOut'
 		})
 	</script>
-
-	<script>
-		$(document).ready(function() {
-			if (Modernizr.touch) {
-				// show the close overlay button
-				$('.close-overlay').removeClass('hidden');
-				// handle the adding of hover class when clicked
-				$('.img').click(function(e) {
-					if (!$(this).hasClass('hover')) {
-						$(this).addClass('hover');
-					}
-				});
-				// handle the closing of the overlay
-				$('.close-overlay').click(function(e) {
-					e.preventDefault();
-					e.stopPropagation();
-					if ($(this).closest('.img').hasClass('hover')) {
-						$(this).closest('.img').removeClass('hover');
-					}
-				});
-			} else {
-				// handle the mouseenter functionality
-				$('.img').mouseenter(function() {
-					$(this).addClass('hover');
-				})
-				// handle the mouseleave functionality
-				.mouseleave(function() { // 추가된 부분
-					$(this).removeClass('hover');
-				}); // 추가된 부분
-			}
-		});
-	</script>
 	<!-- / Owl Carousel -->
 
 	<script>
@@ -415,48 +340,36 @@
 		console.log("loginUserStatus=" + loginUserStatus);
 		//댓글 조회
 		let showList = function(productId, pageNum) {
-			$
-					.ajax({
-						type : 'GET',
-						url : "<c:url value="/productcomment/list"/>/"
-								+ productId, // productId 값을 경로에 포함시킵니다.
-						data : {
-							"pageNum" : pageNum
-						},
-						success : function(data) {
-
-							if (data.productCommentList.length === 0) {
-								var html = "<li class='comment'>";
-								html += '<p class="mb-0 comment-style" style="padding: 10px 30px 10px 50px; text-align:center">댓글이 존재하지 않습니다. 첫번째 댓글을 입력해주세요.</p>';
-
-								html += "</li>";
-								$("#comments-list").html(html);
-								return;
-							}
-
-							loginUno = $
-							{
-								sessionScope.loginUno
-							}
-							;
-							loginUserStatus = $
-							{
-								sessionScope.loginUserStatus
-							}
-							;
-							console.log("loginUno :" + loginUno);
-							console.log("loginUserStatus :" + loginUserStatus);
-
-							resetReplyForm();
-							renderComments(data.productCommentList);
-							renderPagination(data.commentPager);
-
-						},
-						error : function(err) {
-
-							console.error("댓글을 불러오는데 실패했습니다.", err);
-						}
-					});
+			$.ajax({
+				type : 'GET', 
+				url : "<c:url value="/productcomment/list"/>/"+ productId, // productId 값을 경로에 포함시킵니다.
+				data: {"pageNum":pageNum},
+				success : function(data) {
+					
+					if(data.productCommentList.length===0){
+						var html="<li class='comment'>";
+						html += '<p class="mb-0 comment-style" style="padding: 10px 30px 10px 50px; text-align:center">댓글이 존재하지 않습니다. 첫번째 댓글을 입력해주세요.</p>';
+					
+						html+="</li>";
+						$("#comments-list").html(html);
+						return;
+					}
+					
+					loginUno = ${sessionScope.loginUno};
+					loginUserStatus = ${sessionScope.loginUserStatus};
+					console.log("loginUno :" + loginUno);
+					console.log("loginUserStatus :" + loginUserStatus);
+					
+			            resetReplyForm();
+			            renderComments(data.productCommentList);
+			            renderPagination(data.commentPager);
+			        
+				},
+				error : function(err) {
+					
+					console.error("댓글을 불러오는데 실패했습니다.", err);
+				}
+			});
 
 		}
 
@@ -466,11 +379,11 @@
 			$commentList.empty(); // 기존 댓글 내용을 지웁니다.
 
 			comments.forEach(function(comment) {
-				var commentHTML = toHtml(comment);
+				var commentHTML = toHtml(comment); 
 				$commentList.append(commentHTML);
 			});
 		}
-
+		
 		let toHtml = function(comment) {
 			let html = '<li class="comment " data-cno="' + comment.productCommentNo;
 		    html += '" data-group="' + comment.productCommentGroup;
@@ -480,40 +393,37 @@
 			} else if (comment.productCommentBlindstate == 2) { //게시자가 숨겼다면
 				html += '<p class="mb-0 comment-style" style="padding: 10px 30px 10px 50px; text-align:center">관리자에의해 비공개된 댓글입니다.</p>';
 			} else { // 정상적으로 보이는 게시물
-
-				if (comment.prouctCommentGroup == comment.productCommentNo) { //부모댓글
+				
+				if(comment.productCommentGroup == comment.productCommentNo){ //부모댓글
 					html += '<div class="comment-info" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding-right: 20px">'
 							+ comment.nickname + '</span>';
-					html += '<span class="comment-date">'
-							+ comment.productCommentRegdate + '</span>';
+					html += '<span class="comment-date">'+ comment.productCommentRegdate + '</span>';
 					html += '</div>';
 					html += '<p class="mb-0 comment-style" style="padding: 0px 30px 10px 40px;">'
 							+ comment.productCommentContent;
 					html += '<span id="comment-select" style="float: right;">';
 					html += '<a href="#x" class="replyBtn"><i class="far fa-comments fs-15 mr-5"></i>대댓글</a>';
-
+				
 					if (comment.uno === loginUno) {
 						//html += '<a href="#x" class="comment-modify"> <i class="far fa-comments fs-15 mr-5"></i>변경</a>';
 						html += '<a href="#x" class="comment-remove"> <i class="far fa-comments fs-15 mr-5"></i>삭제</a>';
 					}
-					console.log("삭제 loginUno" + loginUno);
+					console.log("삭제 loginUno"+ loginUno);
 					if (loginUserStatus === 1) {
 						html += '<a href="#x" class="comment-hide"> <i class="far fa-comments fs-15 mr-5"></i>숨김</a>';
 					}
 					html += '</span>';
 					html += '</p>';
-
-				} else { //자식댓글
-					html += '<div class="comment-info" style="padding: 10px 30px;">';
+					 
+			 	} else { //자식댓글
+			 		html += '<div class="comment-info" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding: 0 20px 0 80px">'
 							+ comment.nickname + '</span>';
-					html += '<span class="comment-date">'
-							+ comment.productCommentRegdate + '</span>';
+					html += '<span class="comment-date">'+ comment.productCommentRegdate + '</span>';
 					html += '</div>';
-					html += '<p class="mb-0 comment-style" style="padding: 0px 30px 10px 100px;">'
-							+ comment.productCommentContent;
-					html += '<span id="comment-select" style="float: right;">';
+					html += '<p class="mb-0 comment-style" style="padding: 0px 30px 10px 100px;">ㄴ'	+ comment.productCommentContent;
+					html += '<span id="comment-select" style="float: right;">';				
 					if (comment.uno === loginUno) {
 						//html += '<a href="#x" class="comment-modify"> <i class="far fa-comments fs-15 mr-5"></i>변경</a>';
 						html += '<a href="#x" class="comment-remove"> <i class="far fa-comments fs-15 mr-5"></i>삭제</a>';
@@ -523,8 +433,8 @@
 					}
 					html += '</span>';
 					html += '</p>';
-
-				}
+				 
+			 }
 			}
 
 			html += '</li>';
@@ -578,22 +488,22 @@
 			paginationContainer.html(html);
 		}
 
+
 		function setPageNum(selectedPageNum) {
 			pageNum = selectedPageNum; // pageNum에 페이지 번호 저장
 			showList(productId, pageNum);
 		}
-
+		
 		function resetReplyForm() {
-			//$("#comment-reply").hide(); // 대댓글 폼을 숨깁니다.
-			$("#comment-reply").appendTo("#my-section"); // 대댓글 폼을 원래 위치로 되돌립니다.
-			$("#comment-reply").val("");
+		    //$("#comment-reply").hide(); // 대댓글 폼을 숨깁니다.
+		    $("#comment-reply").appendTo("#my-section"); // 대댓글 폼을 원래 위치로 되돌립니다.
+		    $("#comment-reply").val("");
 		}
 		
 		//페이지 로드시 실행될 것들
 		$(document).ready(function() {
 
 			$("#comment-reply").hide(); //대댓글 폼을 일단 숨김
-			checkLikedStatus(productId); //좋아요 여부 표시
 		    showList(productId, pageNum); //댓글 list 출력
 		    
 
@@ -659,7 +569,7 @@
 		                commentLi.find('p.mb-0').text("작성자에 의해 삭제된 댓글입니다.");
 		                commentLi.find('.comment-info').remove();
 		                commentLi.find('.comment-modify, .comment-remove').remove();
-		                showList(productUd, pageNum);
+		                showList(productId, pageNum);
 		            },
 		            error: function(err) {
 		                console.error("댓글 상태 변경에 실패했습니다.", err.responseText);
@@ -720,6 +630,37 @@
 		            }
 		        });
 		    });
+	</script>
+	<script>
+		$(document).ready(function() {
+			if (Modernizr.touch) {
+				// show the close overlay button
+				$('.close-overlay').removeClass('hidden');
+				// handle the adding of hover class when clicked
+				$('.img').click(function(e) {
+					if (!$(this).hasClass('hover')) {
+						$(this).addClass('hover');
+					}
+				});
+				// handle the closing of the overlay
+				$('.close-overlay').click(function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					if ($(this).closest('.img').hasClass('hover')) {
+						$(this).closest('.img').removeClass('hover');
+					}
+				});
+			} else {
+				// handle the mouseenter functionality
+				$('.img').mouseenter(function() {
+					$(this).addClass('hover');
+				})
+				// handle the mouseleave functionality
+				.mouseleave(function() { // 추가된 부분
+					$(this).removeClass('hover');
+				}); // 추가된 부분
+			}
+		});
 	</script>
 
 </body>
