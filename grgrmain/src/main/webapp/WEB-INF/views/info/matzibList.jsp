@@ -45,7 +45,7 @@
 	
 	<!-- / top -->
     <div class="container">
-        <h1 class="mt-5">맛집 리스트</h1>
+        <h1 class="mt-5">맛집 리스트 </h1>
         <hr>
         
         <div class="row mt-4">
