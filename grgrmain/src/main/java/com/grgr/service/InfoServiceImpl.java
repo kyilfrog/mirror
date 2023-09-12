@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,31 +39,30 @@ public class InfoServiceImpl implements InfoService {
     public List<Matzib> getMatzibList(String query) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // query를 Base64로 인코딩
-        String encode = Base64.getEncoder().encodeToString(query.getBytes(StandardCharsets.UTF_8));
-
-        // 네이버 API 호출 URI 생성
-        URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com/v1/search/local.json")
+        // Kakao API 호출 URI 생성
+        URI uri = UriComponentsBuilder.fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", query)
-                .queryParam("display", 30)
-                .queryParam("start", 1)
-                .queryParam("sort", "random")
+                .queryParam("size", 15)
+                .queryParam("sort", "accuracy")
+                .queryParam("category_group_code", "FD6")
+                .queryParam("page", 3)
                 .encode()
                 .build()
                 .toUri();
 
-        // 네이버 API 헤더 설정
+        // Kakao API 헤더 설정
+        String kakaoApiKey="0fb3ecb8e0027e1631f8bac23640202b";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Naver-Client-Id", "0PhhgMX_KR1xHRl1q6k7");
-        headers.set("X-Naver-Client-Secret", "fq1gTWshB0");
-        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
+        headers.set("Authorization", "KakaoAK " + kakaoApiKey); // API 키 설정
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-     // 네이버 API 호출
+        // Kakao API 호출
+        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, org.springframework.http.HttpMethod.GET, uri);
         ResponseEntity<MatzibResponse> responseEntity = restTemplate.exchange(requestEntity, MatzibResponse.class);
         MatzibResponse matzibResponse = responseEntity.getBody();
-        
+
         if (matzibResponse != null) {
-            return matzibResponse.getItems();
+            return matzibResponse.getDocuments();
         } else {
             return Collections.emptyList();
         }
