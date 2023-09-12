@@ -38,8 +38,14 @@ public class ProductCommentController {
 	@GetMapping("/list/{productId}")
 	public Map<String, Object> commentList(@PathVariable int productId, @RequestParam(defaultValue = "1") int pageNum,
 			HttpSession session) {
+		log.info("ProductCommentController() 클래스의 commentList() 메소드 호출");
+
 		Integer loginUno = (Integer) session.getAttribute("loginUno");
+		Integer loginUserStatus = (Integer) session.getAttribute("loginUserStatus");
+
 		Map<String, Object> resultMap = productCommentService.getProductCommentList(productId, pageNum);
+		resultMap.put("loginUno", loginUno); // 로그인한 사용자의 uno 값을 결과 맵에 포함
+		resultMap.put("loginUserStatus", loginUserStatus);
 
 		return resultMap;
 
@@ -49,7 +55,8 @@ public class ProductCommentController {
 	@PostMapping("/write/{productId}")
 	public ResponseEntity<String> productCommentAdd(@RequestBody ProductComment productComment,
 			@PathVariable int productId, HttpSession session) throws CommentInsertException {
-		int loginUno = (int) session.getAttribute("loginUno");
+		log.info("ProductCommentController() 클래스의 qnaCommentAdd() 메소드 호출");
+		Integer loginUno = (Integer) session.getAttribute("loginUno");
 		productComment.setUno(loginUno);
 		productComment.setProductId(productId);
 		productCommentService.addProductComment(productComment);
@@ -58,10 +65,11 @@ public class ProductCommentController {
 	}
 
 	// 댓글 수정
-	@PatchMapping("/modify/{productId}")
+	@PatchMapping("/modify/{productCommentNo}")
 	public ResponseEntity<String> productCommentModify(@PathVariable int productCommentNo,
 			@RequestBody ProductComment productComment, HttpSession session) throws CommentModifyException {
-		int loginUno = (int) session.getAttribute("loginUno");
+		log.info("ProductCommentController() 클래스의 qnaCommentModify() 메소드 호출");
+		Integer loginUno = (Integer) session.getAttribute("loginUno");
 		productComment.setUno(loginUno);
 		productComment.setProductCommentContent(HtmlUtils.htmlEscape(productComment.getProductCommentContent()));
 		productCommentService.modifyProductComment(productComment);
@@ -69,10 +77,11 @@ public class ProductCommentController {
 	}
 
 	// 댓글 삭제
-	@PutMapping("/remove/{productId}")
+	@PutMapping("/remove/{productCommentNo}")
 	public ResponseEntity<String> productCommentRemove(@PathVariable int productCommentNo, HttpSession session)
 			throws CommentRemoveException {
-		int loginUno = (int) session.getAttribute("loginUno");
+		log.info("ProductCommentController() 클래스의 qnaCommentRemove() 메소드 호출");
+		Integer loginUno = (Integer) session.getAttribute("loginUno");
 		productCommentService.removeProductComment(productCommentNo, loginUno);
 
 		return new ResponseEntity<String>("DEL_OK", HttpStatus.OK);
@@ -80,11 +89,12 @@ public class ProductCommentController {
 	}
 
 	// 댓글 숨김
-	@PutMapping("/hide/{productId}")
+	@PutMapping("/hide/{productCommentNo}")
 	public ResponseEntity<String> productCommentHide(@PathVariable int productCommentNo, HttpSession session)
 			throws CommentBlindException {
-		int loginUno = (int) session.getAttribute("loginUno");
-		int loginUserStatus = (int) session.getAttribute("loginUserStatus");
+		log.info("ProductCommentController() 클래스의 qnaCommentBlind() 메소드 호출");
+		Integer loginUno = (Integer) session.getAttribute("loginUno");
+		Integer loginUserStatus = (Integer) session.getAttribute("loginUserStatus");
 		log.info("hide 메서드");
 		productCommentService.hideProductComment(loginUno, productCommentNo, loginUserStatus);
 

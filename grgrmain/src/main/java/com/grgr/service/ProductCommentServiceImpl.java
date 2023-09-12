@@ -89,11 +89,5 @@ public class ProductCommentServiceImpl implements ProductCommentService {
 
 	}
 
-	@Override
-	public int productCommentReportNo(int productId) {
-		// TODO Auto-generated method stub
-		return productCommentDAO.increaseProductCommentReportNo(productId);
-	}
-
 
 }

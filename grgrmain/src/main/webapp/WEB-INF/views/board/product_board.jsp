@@ -7,12 +7,6 @@
 
 <head>
 <!-- Meta -->
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Soft UI - Neumorphism Style UI Kit">
-<meta name="author" content="kingstudio.ro">
 <!-- Favicon -->
 <link rel="icon"
 	href="${pageContext.request.contextPath}/assets/images/favicon.png">
@@ -43,7 +37,7 @@
 <link
 	href="${pageContext.request.contextPath}/assets/css/fontawesome-all.min.css"
 	rel="stylesheet" type="text/css">
-<style type="text/css">
+<style>
 .va-middle {
 	font-size: 20px;
 }
@@ -57,9 +51,8 @@
 	font-weight: 'bold';
 }
 
-.uploaded-img {
-	width: 300px;
-	height: auto;
+.board-images {
+	width: 100px;
 }
 
 #comment-reply {
@@ -262,12 +255,11 @@
 			<!-- 페이지 네비게이션 -->
 			<nav aria-label="pagination-center">
 				<ul class="pagination justify-content-center">
-
 				</ul>
 			</nav>
 			<!-- 페이지 네비 -->
 		</div>
-
+		</div>
 		<!-- 대댓글 폼 : 대댓 버튼 누를시 댓글아래로 이동하여 style -> block-->
 		<div id="comment-reply" data-group=""
 			style="display: none; width: 95%; display: flex; justify-content: flex-end; align-items: center; margin: 10px;">
@@ -278,6 +270,7 @@
 					class="btn btn-outline-secondary">등록</button>
 			</div>
 		</div>
+		<!-- 대댓글 폼 -->
 
 		<!-- / container -->
 	</section>
@@ -334,10 +327,9 @@
 		const productId = url.searchParams.get("productId");
 		let pageNum = 1;
 		let loginUno;
-		console.log("loginUno=" + loginUno);
 		let productCommentNo;
 		let loginUserStatus;
-		console.log("loginUserStatus=" + loginUserStatus);
+		
 		//댓글 조회
 		let showList = function(productId, pageNum) {
 			$.ajax({
@@ -395,7 +387,7 @@
 			} else { // 정상적으로 보이는 게시물
 				
 				if(comment.productCommentGroup == comment.productCommentNo){ //부모댓글
-					html += '<div class="comment-info" style="padding: 10px 30px;">';
+					html += '<div class="comment-product" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding-right: 20px">'
 							+ comment.nickname + '</span>';
 					html += '<span class="comment-date">'+ comment.productCommentRegdate + '</span>';
@@ -417,12 +409,12 @@
 					html += '</p>';
 					 
 			 	} else { //자식댓글
-			 		html += '<div class="comment-info" style="padding: 10px 30px;">';
+			 		html += '<div class="comment-product" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding: 0 20px 0 80px">'
 							+ comment.nickname + '</span>';
 					html += '<span class="comment-date">'+ comment.productCommentRegdate + '</span>';
 					html += '</div>';
-					html += '<p class="mb-0 comment-style" style="padding: 0px 30px 10px 100px;">ㄴ'	+ comment.productCommentContent;
+					html += '<p class="mb-0 comment-style" style="padding: 0px 30px 10px 100px;">'	+ comment.productCommentContent;
 					html += '<span id="comment-select" style="float: right;">';				
 					if (comment.uno === loginUno) {
 						//html += '<a href="#x" class="comment-modify"> <i class="far fa-comments fs-15 mr-5"></i>변경</a>';
@@ -567,7 +559,7 @@
 		            success: function() {
 		                const commentLi = $('li[data-cno="' + productCommentNo + '"]');
 		                commentLi.find('p.mb-0').text("작성자에 의해 삭제된 댓글입니다.");
-		                commentLi.find('.comment-info').remove();
+		                commentLi.find('.comment-product').remove();
 		                commentLi.find('.comment-modify, .comment-remove').remove();
 		                showList(productId, pageNum);
 		            },
@@ -589,7 +581,7 @@
 		            success: function() {
 		                const commentLi = $('li[data-cno="' + productCommentNo + '"]');
 		                commentLi.find('p.mb-0').text("Blind 되었습니다.");
-		                commentLi.find('.comment-info').remove();
+		                commentLi.find('.comment-product').remove();
 		                commentLi.find('.comment-hide').remove();
 		                showList(productId, pageNum);
 		            },
@@ -631,6 +623,7 @@
 		        });
 		    });
 	</script>
+
 	<script>
 		$(document).ready(function() {
 			if (Modernizr.touch) {
