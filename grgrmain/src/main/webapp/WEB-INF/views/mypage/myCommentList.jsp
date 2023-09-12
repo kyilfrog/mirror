@@ -161,7 +161,28 @@
 										<!-- / column -->
 										<div class="col-lg-10 text-left tablet-lg-center">
 
-											<p class="lead mb-20">${commentList.content}</p>
+											<c:choose>
+												<c:when test="${commentList.boardtype == 'QNA'}">
+													<a
+														href="<c:url value='/qnaboard/read?qnaBno=${commentList.bno}'/>">
+														<p class="mb-20">${commentList.content}</p>
+													</a>
+												</c:when>
+												<c:when test="${commentList.boardtype == 'INFO'}">
+
+													<a
+														href="<c:url value='/infoboard/read?infoBno=${commentList.bno}'/>">
+														<p class="mb-20">${commentList.content}</p>
+													</a>
+												</c:when>
+												<c:when test="${commentList.boardtype == 'FREE'}">
+
+													<a
+														href="<c:url value='/freeboard/read?freeBno=${commentList.bno}'/>">
+														<p class="mb-20">${commentList.content}</p>
+													</a>
+												</c:when>
+											</c:choose>
 											<p class="fs-16 post-meta-small mt-15 mb-0"
 												style="text-align: right">
 												<span class="m-x-10 text-muted">|</span> <i
