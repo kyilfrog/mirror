@@ -4,15 +4,15 @@ import lombok.Data;
 
 @Data
 public class Matzib {
-
-	private String title;
-	private String link;
-	private String category;
-	private String description;
-	private String telephone;
-	private String address;
-	private Integer mapx;
-	private Integer mapy;
+	
+	
+	private String place_name;
+	private String place_url;
+	private String category_name;
+	private String phone;
+	private String address_name;
+	private String x;
+	private String y;
     
 	
 }

@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MatzibResponse {
-    @JsonProperty("items")
-    private List<Matzib> items;
+    @JsonProperty("documents")
+    private List<Matzib> documents;
 }
