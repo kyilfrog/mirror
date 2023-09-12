@@ -36,35 +36,40 @@ public class InfoServiceImpl implements InfoService {
 
 	
 	@Override
-    public List<Matzib> getMatzibList(String query) {
-        RestTemplate restTemplate = new RestTemplate();
+	public List<Matzib> getMatzibList(String query) {
+	    RestTemplate restTemplate = new RestTemplate();
+	    List<Matzib> matzibList = new ArrayList<>();
 
-        // Kakao API 호출 URI 생성
-        URI uri = UriComponentsBuilder.fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
-                .queryParam("query", query)
-                .queryParam("size", 15)
-                .queryParam("sort", "accuracy")
-                .queryParam("category_group_code", "FD6")
-                .queryParam("page", 3)
-                .encode()
-                .build()
-                .toUri();
+	    // 3페이지까지 순회하면서 요청
+	    for (int page = 1; page <=4; page++) {
+	        // Kakao API 호출 URI 생성
+	        URI uri = UriComponentsBuilder.fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
+	                .queryParam("query", query)
+	                .queryParam("size", 15)
+	                .queryParam("sort", "accuracy")
+	                .queryParam("category_group_code", "FD6")
+	                .queryParam("page", page)
+	                .encode()
+	                .build()
+	                .toUri();
 
-        // Kakao API 헤더 설정
-        String kakaoApiKey="0fb3ecb8e0027e1631f8bac23640202b";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + kakaoApiKey); // API 키 설정
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+	        // Kakao API 헤더 설정
+	        String kakaoApiKey = "0fb3ecb8e0027e1631f8bac23640202b";
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.set("Authorization", "KakaoAK " + kakaoApiKey); // API 키 설정
+	        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        // Kakao API 호출
-        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, org.springframework.http.HttpMethod.GET, uri);
-        ResponseEntity<MatzibResponse> responseEntity = restTemplate.exchange(requestEntity, MatzibResponse.class);
-        MatzibResponse matzibResponse = responseEntity.getBody();
+	        // Kakao API 호출
+	        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, uri);
+	        ResponseEntity<MatzibResponse> responseEntity = restTemplate.exchange(requestEntity, MatzibResponse.class);
+	        MatzibResponse matzibResponse = responseEntity.getBody();
 
-        if (matzibResponse != null) {
-            return matzibResponse.getDocuments();
-        } else {
-            return Collections.emptyList();
-        }
-    }
+	        if (matzibResponse != null) {
+	            matzibList.addAll(matzibResponse.getDocuments());
+	        }
+	    }
+
+	    return matzibList;
+	}
+
 }
