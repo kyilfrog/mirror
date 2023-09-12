@@ -68,7 +68,7 @@
             </c:forEach>
         </div>
     </div>
-    <!-- footer 영역 ㄴㅁ--> 
+    <!-- footer 영역 추가--> 
 	<jsp:include page="/WEB-INF/views/tiles/footer.jsp" />
 
     
