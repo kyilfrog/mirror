@@ -69,7 +69,7 @@
 		WHERE
 		QNA_COMMENT_NO=#{qnaCommentNo}
 		AND UNO = #{uno}
-		AND
+		AND 
 		QNA_COMMENT_BLINDSTATE = 1
 	</update>
 
