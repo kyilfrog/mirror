@@ -29,7 +29,8 @@
 	<!-- 로그인 -->
 	<select id="userLogin" resultType="com.grgr.dto.UserVO">
 
-		select * from USERINFO where USER_ID = #{userId}
+		select * from USERINFO where
+		USER_ID = #{userId}
 	</select>
 
 
@@ -58,7 +59,8 @@
 	<!-- user-update 쿼리 -->
 	<update id="updateUser" parameterType="com.grgr.dto.UserVO">
 		UPDATE userinfo
-		SET user_name = #{userName},
+		SET
+		user_name = #{userName},
 		nickname = #{nickName},
 		user_id = #{userId},
 		phone=#{phone},
@@ -77,7 +79,8 @@
 		SELECT user_id
 		FROM userinfo
 		WHERE user_name = #{name}
-		AND email = #{email}
+		AND
+		email = #{email}
 	</select>
 
 	<!-- 비밀번호 찾기 -->
@@ -88,7 +91,8 @@
 		resultType="com.grgr.dto.UserVO">
 		SELECT * FROM userinfo
 		WHERE user_id = #{userId}
-		AND email = #{email}
+		AND email =
+		#{email}
 	</select>
 
 	<!-- 사용자 비밀번호 업데이트 -->
@@ -96,7 +100,8 @@
 		parameterType="com.grgr.dto.UserVO">
 		UPDATE userinfo
 		SET user_pw = #{userPw}
-		WHERE user_id = #{userId}
+		WHERE user_id =
+		#{userId}
 	</update>
 
 	<!-- 회원 조회 -->
@@ -213,6 +218,8 @@
 		<result column="REGDATE" property="regdate" />
 		<result column="VIEW_CNT" property="viewCnt" />
 		<result column="NICKNAME" property="nickName" />
+		<result column="BOARDTYPE" property="boardtype" />
+		<result column="BNO" property="bno" />
 		<result column="UNO" property="uno" />
 	</resultMap>
 	<select id="getBoardWriteList" resultMap="boardWriteResultMap"
@@ -221,67 +228,62 @@
 		FROM (
 		SELECT
 		UNO,
+		BNO,
 		TITLE,
 		CONTENT,
 		VIEWCNT,
 		REGDATE,
 		NICKNAME,
+		BOARDTYPE,
 		ROW_NUMBER() OVER (ORDER BY REGDATE DESC) AS RN
 		FROM (
 		SELECT
 		INFO_BOARD.UNO AS UNO,
+		INFO_BOARD.INFO_BNO AS BNO,
 		INFO_BOARD.INFO_TITLE AS TITLE,
 		INFO_BOARD.INFO_CONTENT AS CONTENT,
-		INFO_BOARD.INFO_VIEW_CNT AS
-		VIEWCNT,
-		INFO_BOARD.INFO_REGDATE AS
-		REGDATE,
-		USERINFO.NICKNAME AS
-		NICKNAME
+		INFO_BOARD.INFO_VIEW_CNT AS VIEWCNT,
+		INFO_BOARD.INFO_REGDATE AS REGDATE,
+		INFO_BOARD.BOARDTYPE AS BOARDTYPE,
+		USERINFO.NICKNAME AS NICKNAME
 		FROM INFO_BOARD
-		JOIN USERINFO ON
-		INFO_BOARD.UNO = USERINFO.UNO
-		WHERE INFO_BOARD.UNO = #{uno} AND INFO_BOARD.INFO_BLINDSTATE=1
+		JOIN USERINFO ON INFO_BOARD.UNO = USERINFO.UNO
+		WHERE INFO_BOARD.UNO = #{uno} AND INFO_BOARD.INFO_BLINDSTATE = 1
 
 		UNION ALL
 
 		SELECT
 		QNA_BOARD.UNO AS UNO,
+		QNA_BOARD.QNA_BNO AS BNO,
 		QNA_BOARD.QNA_TITLE AS TITLE,
 		QNA_BOARD.QNA_CONTENT AS CONTENT,
 		QNA_BOARD.QNA_VIEW_CNT AS VIEWCNT,
 		QNA_BOARD.QNA_REGDATE AS REGDATE,
+		QNA_BOARD.BOARDTYPE AS BOARDTYPE,
 		USERINFO.NICKNAME AS NICKNAME
 		FROM QNA_BOARD
-		JOIN USERINFO ON
-		QNA_BOARD.UNO = USERINFO.UNO
-		WHERE QNA_BOARD.UNO = #{uno} AND QNA_BOARD.QNA_BLINDSTATE=1
+		JOIN USERINFO ON QNA_BOARD.UNO = USERINFO.UNO
+		WHERE QNA_BOARD.UNO = #{uno} AND QNA_BOARD.QNA_BLINDSTATE = 1
 
 		UNION ALL
 
 		SELECT
 		FREE_BOARD.UNO AS UNO,
+		FREE_BOARD.FREE_BNO AS BNO,
 		FREE_BOARD.FREE_TITLE AS TITLE,
 		FREE_BOARD.FREE_CONTENT AS CONTENT,
-		FREE_BOARD.FREE_VIEW_CNT AS
-		VIEWCNT,
-		FREE_BOARD.FREE_REGDATE AS
-		REGDATE,
-		USERINFO.NICKNAME AS
-		NICKNAME
-		FROM
-		FREE_BOARD
-		JOIN USERINFO ON
-		FREE_BOARD.UNO = USERINFO.UNO
-		WHERE
-		FREE_BOARD.UNO = #{uno} AND FREE_BOARD.FREE_BLINDSTATE=1
+		FREE_BOARD.FREE_VIEW_CNT AS VIEWCNT,
+		FREE_BOARD.FREE_REGDATE AS REGDATE,
+		FREE_BOARD.BOARDTYPE AS BOARDTYPE,
+		USERINFO.NICKNAME AS NICKNAME
+		FROM FREE_BOARD
+		JOIN USERINFO ON FREE_BOARD.UNO = USERINFO.UNO
+		WHERE FREE_BOARD.UNO = #{uno} AND FREE_BOARD.FREE_BLINDSTATE = 1
 		) COMBINED
-		)
-		TEMP
-		WHERE RN BETWEEN
-		#{startRow} AND
-		#{endRow}
+		) TEMP
+		WHERE RN BETWEEN #{startRow} AND #{endRow}
 	</select>
+
 
 	<!-- 내가 쓴 전체 게시글 갯수 -->
 	<select id="selectWriteCount" resultType="int"
@@ -333,7 +335,8 @@
 		parameterType="java.util.Map">
 		UPDATE userinfo
 		SET user_loc = #{address}
-		WHERE user_id = #{loginId}
+		WHERE user_id =
+		#{loginId}
 	</update>
 
 </mapper>
