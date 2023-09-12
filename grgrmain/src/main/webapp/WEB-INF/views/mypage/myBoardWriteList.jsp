@@ -161,7 +161,29 @@
 										</div>
 										<!-- / column -->
 										<div class="col-lg-10 text-left tablet-lg-center">
-											<p class="mb-20">${boardWriteList.title}</p>
+											<c:choose>
+												<c:when test="${boardWriteList.boardtype == 'QNA'}">
+													<a
+														href="<c:url value='/qnaboard/read?qnaBno=${boardWriteList.bno}'/>">
+														<p class="mb-20">${boardWriteList.title}</p>
+													</a>
+												</c:when>
+												<c:when test="${boardWriteList.boardtype == 'INFO'}">
+													<!-- INFO 일 때의 추가 내용을 여기에 추가하세요 -->
+													<a
+														href="<c:url value='/infoboard/read?infoBno=${boardWriteList.bno}'/>">
+														<p class="mb-20">${boardWriteList.title}</p>
+													</a>
+												</c:when>
+												<c:when test="${boardWriteList.boardtype == 'FREE'}">
+													<!-- FREE 일 때의 추가 내용을 여기에 추가하세요 -->
+													<a
+														href="<c:url value='/freeboard/read?freeBno=${boardWriteList.bno}'/>">
+														<p class="mb-20">${boardWriteList.title}</p>
+													</a>
+												</c:when>
+											</c:choose>
+
 											<p class="lead mb-20">${boardWriteList.content}</p>
 											<p class="fs-16 post-meta-small mt-15 mb-0"
 												style="text-align: right">
