@@ -39,17 +39,16 @@ PRODUCT_COMMENT_UPDATE_UNO          NUMBER
 
 @Data
 public class ProductComment {
-	int productCommentNo;
-	int uno;
-	int productId;
-	int productCommentReportno;
-	String productCommentContent;
-	int productCommentGroup;
-	int productCommentBlindstate;
-	String productCommentRegdate;
-	String productCommentUpdate;
-	int productCommentUpdateUno;
+	private int productCommentNo;
+	private int uno;
+	private int productId;
+	private String productCommentContent;
+	private int productCommentGroup;
+	private int productCommentBlindstate;
+	private String productCommentRegdate;
+	private String productCommentUpdate;
+	private int productCommentUpdateUno;
 
-	String nickname; // 조회시에만 사용할 닉네임 변수
+	private String nickname; // 조회시에만 사용할 닉네임 변수
 
 }

@@ -52,10 +52,5 @@ public class ProductCommentDAOImpl implements ProductCommentDAO {
 		return sqlSession.getMapper(ProductCommentMapper.class).blindProductComment(map);
 	}
 
-	@Override
-	public int increaseProductCommentReportNo(int productId) {
-		// TODO Auto-generated method stub
-		return sqlSession.getMapper(ProductCommentMapper.class).increaseProductCommentReportNo(productId);
-	}
 
 }

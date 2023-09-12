@@ -18,7 +18,6 @@
 		PC.PRODUCT_COMMENT_NO,
 		PC.UNO,
 		PC.PRODUCT_ID,
-		PC.PRODUCT_COMMENT_REPORTNO,
 		PC.PRODUCT_COMMENT_CONTENT,
 		CASE
 		WHEN
@@ -51,15 +50,12 @@
 		= product_comment_group 으로 설정되도록 -->
 	<insert id="insertProductComment">
 		INSERT INTO PRODUCT_COMMENT
-		(PRODUCT_COMMENT_NO,
-		PRODUCT_ID,
+		(PRODUCT_COMMENT_NO, PRODUCT_ID,
 		UNO, PRODUCT_COMMENT_CONTENT, PRODUCT_COMMENT_GROUP,
 		PRODUCT_COMMENT_UPDATE_UNO)
-		VALUES (PRODUCT_COMMENT_SEQ.NEXTVAL,
-		#{productId},
+		VALUES (PRODUCT_COMMENT_SEQ.NEXTVAL, #{productId},
 		#{uno}, #{productCommentContent},
-		#{productCommentGroup},
-		#{uno})
+		#{productCommentGroup}, #{uno})
 	</insert>
 
 	<!-- 자신의 댓글 수정 들다 loginUno 필요함 -->
@@ -101,16 +97,6 @@
 		1
 		AND PRODUCT_COMMENT_BLINDSTATE
 		= 1
-	</update>
-
-
-	<!-- 신고수 증가 -->
-	<update id="increaseProductCommentReportNo">
-		UPDATE PRODUCT_COMMENT
-		SET
-		PRODUCT_COMMENT_REPORTNO =
-		PRODUCT_COMMENT_REPORTNO + 1
-		WHERE PRODUCT_ID = #{productId}
 	</update>
 
 </mapper>
