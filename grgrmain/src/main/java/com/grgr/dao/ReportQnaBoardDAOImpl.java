@@ -1,6 +1,5 @@
 package com.grgr.dao;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
@@ -22,17 +21,8 @@ public class ReportQnaBoardDAOImpl implements ReportQnaBoardDAO {
 	}
 	
 	@Override
-	public int reportQnaBoardCount(Map<String, Object> map) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).reportQnaBoardCount(map);
-	}
-	@Override
-	public int increaseReportQnaBoard(int reportQnaBoardNo) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).increaseReportQnaBoard(reportQnaBoardNo);
-	}
-
-	@Override
-	public int deleteReportQnaBoard(Map<String, Object> map) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).deleteReportQnaBoard(map);
+	public int increaseQnaBoardReportCnt(int qnaBno) {
+		return sqlSession.getMapper(ReportQnaBoardMapper.class).increaseQnaBoardReportCnt(qnaBno);
 	}
 
 	@Override
@@ -41,17 +31,7 @@ public class ReportQnaBoardDAOImpl implements ReportQnaBoardDAO {
 	}
 
 	@Override
-	public Integer selectPrevReportQnaBoard(Map<String, Object> map) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).selectPrevReportQnaBoard(map);
-	}
-
-	@Override
-	public Integer selectNextReportQnaBoard(Map<String, Object> map) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).selectNextReportQnaBoard(map);
-	}
-
-	@Override
-	public List<ReportQnaBoard> selectReportQnaBoardList(Map<String, Object> map) {
-		return sqlSession.getMapper(ReportQnaBoardMapper.class).selectReportQnaBoardList(map);
+	public int checkDuplicateReport(Map<String, Object> map) {
+		return sqlSession.getMapper(ReportQnaBoardMapper.class).checkDuplicateReport(map);
 	}
 }

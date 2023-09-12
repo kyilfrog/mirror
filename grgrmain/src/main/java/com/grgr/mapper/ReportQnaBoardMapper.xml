@@ -4,71 +4,34 @@
 
 	<!-- 게시글 신고 삽입 -->
 	<insert id="insertReportQnaBoard">
-		<selectKey resultType="int" keyProperty="reportQnaBoardno"
-			order="BEFORE">
-			SELECT REPORT_QNA_SEQ.NEXTVAL FROM DUAL
-		</selectKey>
-		INSERT INTO REPORT_QNA
-		(REPORT_QNABOARD_NO, UNO, QNA_BNO,
+		INSERT INTO REPORT_QNABOARD
+		(REPORT_QNABOARD_NO, UNO,
+		QNA_BNO,
 		REPORT_REASON)
-		VALUES(#{reportQnaBoardNo}, #{uno}, #{qnaBno},
+		VALUES(REPORT_QNABOARD_SEQ.NEXTVAL, #{uno},
+		#{qnaBno},
 		#{reportReason})
 	</insert>
 
-	<!-- 문의게시글 총 신고수 -->
-	<select id="reportQnaBoardCount" resultType="int">
-		SELECT COUNT(*)
-		FROM REPORT_QNA RQ
-		JOIN USERINFO U ON RQ.UNO = U.UNO
-		WHERE
-		REPORT_STATUS = 1
-	</select>
-
-	<!-- 게시글 카운트 증가 -->
-	<update id="increaseReportQnaBoard">
-		UPDATE REPORT_QNA
-		SET REPORT_CNT = REPORT_CNT + 1
-		WHERE REPORT_QNABOARD_NO = #{reportQnaBoardNo}
-	</update>
-
-	<!-- 관리자가 신고글 삭제 -->
-	<!-- => 관리자(유저 상태: 1)가 게시글을 삭제하면 게시글 상태변경(처리완료: 2) -->
-	<update id="deleteReportQnaBoard">
-		UPDATE REPORT_QNA
-		SET UNO = #{uno},
-		QNA_BNO = #{qnaBno},
-		REPORT_UPDATE = SYSDATE,
-		REPORT_UPDATE_UNO = #{reportUpdateUno}
-		AND REPORT_STATUS = 2
-		WHERE
-		#{userStatus} = 1
-		AND REPORT_QNABOARD_NO = #{reportQnaBoardNo}
-		AND REPORT_STATUS = 1
+	<!-- 신고 게시글 카운트 증가 -->
+	<update id="increaseQnaBoardReportCnt">
+		update qna_board set qna_report_cnt = qna_report_cnt+1
+		where qna_bno=#{qnaBno}
 	</update>
 
 	<!-- 신고 게시글 조회 -->
 	<select id="selectReportQnaBoard" resultType="ReportQnaBoard">
-		SELECT * FROM REPORT_QNA
+		SELECT * FROM
+		REPORT_QNABOARD
 		WHERE
 		REPORT_QNABOARD_NO = #{reportQnaBoardNo}
 	</select>
 
-	<!-- 신고 게시글 리스트 -->
-	<select id="selectReportQnaBoardList"
-		resultType="ReportQnaBoard">
-		SELECT * FROM (
-		SELECT ROWNUM RN, RQ.* FROM(
-		SELECT *
-		FROM
-		REPORT_QNA
-		WHERE
-		JOIN
-		USERINFO U ON RQ.UNO = U.UNO
-		ORDER BY
-		RQ.REPORT_QNABOARD_NO DESC
-		) RQ
-		)
-		WHERE RN BETWEEN #{startRow} AND
-		#{endRow}
+	<!-- 중복 신고 여부 확인 -->
+	<select id="checkDuplicateReport">
+		SELECT COUNT(*)
+		FROM REPORT_QNABOARD
+		WHERE UNO = #{uno}
+		AND QNA_BNO = #{qnaBno}
 	</select>
 </mapper>

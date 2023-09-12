@@ -35,6 +35,10 @@
 .comment {
 	border-top: 1px solid #97989d;
 }
+
+textarea#modal-reportReason-input:focus {
+	background-color: white !important;
+}
 </style>
 </head>
 <body>
@@ -71,7 +75,6 @@
 						class="d-inline title-color primary-hover fs-24 fw-bold mb-15"
 						style="margin: 10px">${qnaBoard.qnaTitle} </a>
 
-					
 
 					<%-- 세션!! <c:if test="${qnaBoard.uno==loginUno }"> --%>
 					<c:if test="${qnaBoard.uno==sessionScope.loginUno }">
@@ -97,16 +100,19 @@
 							class="btn btn-xs btn-primary pill"
 							style="float: right; font-size: 15px; margin: 10px"><span>숨김</span></a>
 					</c:if>
-					
+
 					<!-- 신고 버튼 -->
-					<button type="button" class="btn btn-xs btn-primary pill"
-						data-toggle="modal" data-target="reportModal"
-						onclick="openReportModal()">
-						<span>신고</span>
-					</button>
+					<c:if test="${qnaBoard.uno ne loginUno}">
+						<button type="button" class="btn btn-xs btn-primary pill pull-right"
+							data-toggle="modal" data-target="reportModal"
+							onclick="openReportModal()" data-qna-bno="${qnaBoard.qnaBno}">
+							<span>신고</span>
+						</button>
+					</c:if>
 
 					<!-- Modal -->
-					<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel">
+					<div class="modal fade" id="reportModal" tabindex="-1"
+						role="dialog" aria-labelledby="reportModalLabel">
 						<div class="modal-dialog" role="document">
 							<div class="modal-content">
 								<div class="modal-header">
@@ -118,20 +124,24 @@
 										<div class="custom-margin">
 											<label for="modal-reportReason-input">신고사유</label>
 										</div>
-										<div class="custom-margin">
-											<input type="text" id="modal-reportReason-input"
-												name="reportReason">
+										<div class="custom-margin" style="height: 200px;">
+											<textarea id="modal-reportReason-input"
+												style="height: 200px; background-color: white;"
+												name="reportReason" class="form-control" rows="10"
+												placeholder="신고 사유를 입력하세요"></textarea>
 										</div>
 									</form>
 								</div>
 								<div class="modal-footer">
 									<button type="button" class="btn btn-primary" id="reportButton">신고</button>
-									<button type="button" class="btn btn-primary" id="closeButton" onclick="closeReportModal()">취소</button>
+									&nbsp;&nbsp;&nbsp;
+									<button type="button" class="btn btn-primary" id="closeButton"
+										onclick="closeReportModal()">취소</button>
 								</div>
 							</div>
 						</div>
 					</div>
-					
+
 					<p
 						class="fs-12 post-meta-small p-y-15 pl-15 mb-15 border-secondary"
 						style="clear: both; padding: 10px">
@@ -145,8 +155,8 @@
 							<c:when test="${qnaBoard.qnaKeyword=='trade'}">상권회원</c:when>
 						</c:choose>
 					</p>
-					
-					
+
+
 
 					<p class="m-y-30">${qnaBoard.qnaContent}</p>
 					<!-- 보던페이지로 이동 -->
@@ -261,14 +271,52 @@
 
 	<!-- 신고 스크립트 -->
 	<script>
-		function openReportModal() {
-	        $('#reportModal').modal('show');
-	    }
+	function openReportModal() {
+	    $('#reportModal').modal('show');
+	}
+		// 중복 확인 및 신고 버튼 클릭 시
+	    $('#reportButton').click(function() {
+	    	var reportReason = $('#modal-reportReason-input').val();
+	    	var qnaBno = ${qnaBoard.qnaBno};
+	    	var uno = <%=session.getAttribute("loginUno")%>;
+
+	    	//내용이 비어있는 경우
+	    	if (reportReason.trim() === "") {
+	            alert("내용을 입력해 주세요.");
+	            return;
+	        }
+	    	
+	    	 console.log("reportReason:", reportReason); // reportReason 값을 로그에 출력
+	    	 console.log("qnaBno:", qnaBno); // qnaBno 값을 로그에 출력
+	    	 console.log("uno:", uno); // uno 값을 로그에 출력
+    	
+	        $.ajax({
+	            type: "POST",
+	            url: "<c:url value="/report/board-add"/>/"+qnaBno, // 신고 처리 컨트롤러 URL
+	            //url: "/report/board-add/" + qnaBno, // 신고 처리 컨트롤러 URL
+	            data: JSON.stringify({ 
+	            	uno: uno,
+	            	reportReason: reportReason }),
+	            contentType: "application/json",
+	            success: function(response) {	            	
+	            	//신고 처리
+	                if (response === "success") {//신고 성공 시 모달 닫기
+	                    alert("신고가 접수되었습니다.");
+	                    $('#reportModal').modal('hide');
+	                } else if (response === "duplicate") {//중복 시 알림
+	                    alert("이미 신고된 게시글입니다.");
+	                    $('#reportModal').modal('hide');
+	                } else {
+	                	 alert("로그인이 필요합니다..");
+	                }
+	            }
+	        });
+	    });
 		
+		//취소 클릭 시 창 닫기
 		function closeReportModal() {
 	        $('#reportModal').modal('hide');
 	    }
-	
 	</script>
 
 	<!-- 댓글기능 관련 스크립트  -->
@@ -299,6 +347,7 @@
 						loginUno = ${sessionScope.loginUno};
 						loginUserStatus = ${sessionScope.loginUserStatus};
 						console.log("loginUno :" + loginUno);
+						console.log("loginUserStatus :" + loginUserStatus);
 		            resetReplyForm();
 		            renderComments(data.qnaCommentList);
 		            renderPagination(data.commentPager);
