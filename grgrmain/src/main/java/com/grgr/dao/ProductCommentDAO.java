@@ -18,5 +18,4 @@ public interface ProductCommentDAO {
 
 	int blindProductComment(Map<String, Object> map);
 
-	int increaseProductCommentReportNo(int productId);
 }

@@ -27,7 +27,4 @@ public interface ProductCommentService {
 	// 댓글 숨김(관리자)
 	public void hideProductComment(int uno, int productCommentNo, int userStatus) throws CommentBlindException;
 
-	// 신고수 증가
-	public int productCommentReportNo(int productId);
-
 }
