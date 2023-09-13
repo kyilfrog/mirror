@@ -146,22 +146,24 @@
 							Reviews)</span>
 					</p>
 
-					<div class="form-cart">
-						<div class="form-cart">
-							<div
-								class="input-group input-w-overlap-btn mb-0 md-input-group sm-input">
-								<input type="number" step="1" min="1" max="10" name="cart"
-									value="1" title="qty" class="form-control qty mr-10 rounded"
-									id="quantityInput"> <span class="input-group-btn">
-									<button class="btn btn-primary rounded" type="button"
-										id="addToCartBtn">
-										<i class="fas fa-shopping-cart mr-5"></i> <span>장바구니 담기</span>
-									</button>
-								</span>
-							</div>
-						</div>
-					</div>
 
+					<div class="form-cart">
+						<div
+							class="input-group input-w-overlap-btn mb-0 md-input-group sm-input">
+							<input type="number" step="1" min="1" max="10" name="cart"
+								value="1" title="qty" class="form-control qty mr-10 rounded"
+								id="quantityInput"> <span class="input-group-btn">
+								<button class="btn btn-primary rounded" type="button"
+									id="addToCartBtn">
+									<i class="fas fa-shopping-cart mr-5"></i> <span>장바구니 담기</span>
+								</button>
+							</span> <a
+								href="<c:url value='/cart/list?uno=${sessionScope.loginUno}' />"
+								class="btn btn-xs btn-primary pill"
+								style="float: right; font-size: 15px"><span>장바구니 이동</span></a>
+						</div>
+						
+					</div>
 
 					<c:if
 						test="${loginUserStatus == '3' && productBoard.uno == sessionScope.loginUno}">

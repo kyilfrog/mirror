@@ -44,8 +44,7 @@ public class ProductCartServiceImpl implements ProductCartService {
 
 	@Override
 	public List<ProductCartDTO> getCartList(int uno) {
-		// TODO Auto-generated method stub
-		return null;
+		return productCartDAO.selectCartList(uno);
 	}
 
 	@Override
