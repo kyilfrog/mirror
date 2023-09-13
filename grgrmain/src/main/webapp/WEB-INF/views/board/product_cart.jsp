@@ -70,7 +70,9 @@
 		style="background-image: url(/grgrmain/images/information.jpg); background-size: cover;">
 		<div class="container text-center">
 
-			<h1 class="page-title"><c:out value="${boardName}" /></h1>
+			<h1 class="page-title">
+				<c:out value="${boardName}" />
+			</h1>
 
 		</div>
 		<!-- / container -->
@@ -84,50 +86,61 @@
 			<!-- Main Content -->
 			<main class="main-content col-md-10">
 
-<div>
-    <ul class="row portfolio project-grid lightbox list-unstyled mb-0" id="grid" style="clear: both">
-        <!-- project : 게시글 list 출력 -->
-        <c:set var="i" value="0" />
-        <c:forEach items="${cartList}" var="cartList">
-<li class="col-md-12 col-lg-0 project">
-	<!-- &pageNum=${pageNum} -->
-	<div class="promo-box">
-		<div class="cta p-0">
-			<div class="row v-center">
-				<div class="col-lg-2 tablet-lg-top-30 tablet-lg-center">
-					<img
-						src="${pageContext.request.contextPath}/upload/${fileList[i]}"
-						alt="Thumbnail" class="rounded" />
-					<c:set var="i" value="${i+1 }" />
-				</div>
-				<!-- / column -->
-				<div class="col-lg-10 text-left tablet-lg-center">
-	
-						
-							<a
-								href="<c:url value='/qnaboard/read?qnaBno=${boardWriteList.bno}'/>">
-								<p class="mb-20">${cartList.productTitle}</p>
-							</a>
+				<div>
+					<ul class="row portfolio project-grid lightbox list-unstyled mb-0"
+						id="grid" style="clear: both">
+						<!-- project : 게시글 list 출력 -->
+						<c:set var="i" value="0" />
+						<c:forEach items="${cartList}" var="cartList">
+							<li class="col-md-12 col-lg-0 project">
+								<!-- &pageNum=${pageNum} -->
+								<div class="promo-box">
+									<div class="cta p-0">
+										<div class="row v-center">
+											<div class="col-lg-2 tablet-lg-top-30 tablet-lg-center" >
+												<img
+													src="${pageContext.request.contextPath}/upload/${fileList[i]}"
+													alt="Thumbnail" class="rounded" />
+												<c:set var="i" value="${i+1 }" />
+											</div>
+											<!-- / column -->
+											<div class="row">
+												<div class="col-lg-4 text-left tablet-lg-center">
+													<a
+														href="<c:url value='/productboard/get?productId=${cartList.productId}'/>">
+														<p class="mb-20">상품명: ${cartList.productTitle}</p>
+													</a>
+												</div>
 
-				
+												<div class="col-lg-4 text-left tablet-lg-center">
+													<p class="lead mb-20">
+														가격: &nbsp; &nbsp; <i class="fas fa-won-sign">&nbsp;
+															${cartList.productPrice}</i>
+													</p>
+												</div>
 
-					<p class="lead mb-20">₩ ${cartList.productPrice}</p>
-					<p class="fs-16 post-meta-small mt-15 mb-0"
-						style="text-align: right">
-						<i class="fas fa-user mr-5"></i>${cartList.productPrice} <span
-							class="m-x-10 text-muted">|</span> 
-					</p>
+												<div class="col-lg-4 text-left tablet-lg-center">
+													<p class="lead mb-20">
+														수량: &nbsp; &nbsp; <input type="number" step="1" min="1"
+															max="10" name="cart" value="${cartList.productCount }"
+															title="qty" class="form-control qty mr-10 rounded"
+															id="quantityInput">
+														<button class="btn btn-xs btn-primary pill"
+															style="font-size: 15px">변경</button>
+													</p>
+												</div>
+											</div>
+
+											<!-- / column -->
+										</div>
+										<!-- / row -->
+									</div>
+									<!-- / cta -->
+								</div> <!-- / promo-box --> </a>
+							</li>
+						</c:forEach>
+					</ul>
 				</div>
-				<!-- / column -->
-			</div>
-			<!-- / row -->
-		</div>
-		<!-- / cta -->
-	</div> <!-- / promo-box --> </a>
-</li>
-</c:forEach>
-    </ul>
-</div>
 
 				<!-- / container -->
 
