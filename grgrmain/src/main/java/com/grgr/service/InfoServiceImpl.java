@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-
+@CrossOrigin(origins = "https://dapi.kakao.com/v2/local/search/keyword.json")
 @Service
 @RequiredArgsConstructor
 public class InfoServiceImpl implements InfoService {
@@ -40,7 +41,7 @@ public class InfoServiceImpl implements InfoService {
 	    RestTemplate restTemplate = new RestTemplate();
 	    List<Matzib> matzibList = new ArrayList<>();
 
-	    // 3페이지까지 순회하면서 요청
+	    
 	    for (int page = 1; page <=4; page++) {
 	        // Kakao API 호출 URI 생성
 	        URI uri = UriComponentsBuilder.fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
