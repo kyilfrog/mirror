@@ -318,7 +318,7 @@
 			items : 1,
 			animateIn : 'fadeIn',
 			animateOut : 'fadeOut'
-		})
+		});
 	</script>
 	<!-- / Owl Carousel -->
 
@@ -499,7 +499,7 @@
 		    showList(productId, pageNum); //댓글 list 출력
 		    
 
-		<!-- 대댓글 폼 --> */
+		<!-- 대댓글 폼 -->
 
 		 /* 대댓글 폼 : 대댓 버튼 누를시 댓글아래로 이동하여 style -> block */
 		$("#comments-list").on("click", ".replyBtn", function() {
@@ -622,6 +622,7 @@
 		            }
 		        });
 		    });
+		});
 	</script>
 
 	<script>
