@@ -49,12 +49,14 @@
 			<mapping path="/user/remove"/> 
 			<mapping path="/noticeboard/write"/>
 			<mapping path="/noticeboard/modify"/>
+			<mapping path="/noticeboard/remove"/>
 			<beans:ref bean="adminAuthInterceptor"/>
 		</interceptor>
 		<interceptor>
 			<!--  <mapping path="/user/**"/>  -->
 			<mapping path="/infoboard/**"/>
 			<mapping path="/productboard/**"/>
+			<mapping path="/noticeboard/write"/>
 			<mapping path="/board/**"/>
 			<!-- <exclude-mapping path="/user/login-register"/> -->
 			<beans:ref bean="loginAuthInterceptor"/>
