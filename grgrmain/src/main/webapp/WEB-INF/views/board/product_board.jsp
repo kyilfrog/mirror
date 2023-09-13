@@ -661,7 +661,7 @@
 	</script>
 
 
-<%--
+	<%--
     // minInput과 maxInput 요소 가져오기
     const quantityInput = document.getElementById("quantityInput");
 
@@ -680,9 +680,16 @@
             let loginUno;
             loginUno = ${sessionScope.loginUno};
             
+            // 수량 체크
             if (productCount > 10) {
                 alert("최대 가능 수량은 " + 10 + " 개 입니다.");
-                return; // 등록을 중단합니다.
+                return; // 등록 X
+            }
+            
+            // 공백 체크
+             if (!productCount || isNaN(productCount)) {
+                alert("수량을 입력하세요.");
+                return; // 등록 X
             }
             // AJAX 요청
             $.ajax({
@@ -698,12 +705,13 @@
                     if (result === '1') {
                         alert("장바구니에 추가되었습니다.");
                     } else if (result === '2') {
-                        alert("장바구니에 이미 추가되어져 있습니다.");
+                        alert("장바구니에 이미 추가되어 있습니다.");
                     } else {
                         alert("장바구니에 추가를 하지 못하였습니다.");
                     }
                 },	
                 error: function() {
+                	
                     alert("오류가 발생하였습니다.");
                 }
             });
