@@ -124,6 +124,60 @@
 							class="btn btn-xs btn-primary pill"
 							style="float: right; font-size: 15px; margin: 10px"><span>숨김</span></a>
 					</c:if>
+					
+					
+					
+					
+					
+					
+					<!-- 신고 버튼 -->
+					<c:if test="${freeBoard.uno ne loginUno}">
+						<button type="button" class="btn btn-xs btn-primary pill pull-right"
+							data-toggle="modal" data-target="#reportModal"
+							onclick="openReportModal()" data-free-bno="${freeBoard.freeBno}">
+							<span>신고</span>
+						</button>
+					</c:if>
+
+					<!-- Modal -->
+					<div class="modal fade" id="reportModal" tabindex="-1"
+						role="dialog" aria-labelledby="reportModalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title" id="reportModalLabel">신고하기</h4>
+									<hr>
+								</div>
+								<div class="modal-body">
+									<form id="reportForm">
+										<div class="custom-margin">
+											<label for="modal-reportReason-input">신고사유</label>
+										</div>
+										<div class="custom-margin" style="height: 200px;">
+											<textarea id="modal-reportReason-input"
+												style="height: 200px; background-color: white;"
+												name="reportReason" class="form-control" rows="10"
+												placeholder="신고 사유를 입력하세요"></textarea>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-primary" id="reportButton">신고</button>
+									&nbsp;&nbsp;&nbsp;
+									<button type="button" class="btn btn-primary" id="closeButton"
+										onclick="closeReportModal()">취소</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					
 					<p
 						class="fs-12 post-meta-small p-y-15 pl-15 mb-15 border-secondary"
 						style="clear: both; padding: 10px">
@@ -160,7 +214,10 @@
 							<li class="pager-left disabled"><i class="fas fa-arrow-left"></i>
 								<span class="ml-5">이전글</span></a></li>
 						</c:if>
-
+						
+						<!-- 좋아요 버튼 -->
+						<li><span id="like-button"> <img> <span></span></span></li>
+						
 						<c:if test="${!isLastPost}">
 							<li class="pager-right"><a
 								href="<c:url value='/freeboard/read${searchCondition.getQueryString()}&freeBno=${nextFreeBno}'/>"><span
@@ -248,22 +305,75 @@
 		src="${pageContext.request.contextPath}/assets/js/jquery.shuffle.min.js"></script>
 	<script src="${pageContext.request.contextPath}/assets/js/portfolio.js"></script>
 	<script src="${pageContext.request.contextPath}/assets/js/jquery.min.js"></script>
+	
+	
+	<!-- 신고 스크립트 -->
+	<script>
+	function openReportModal() {
+	    $('#reportModal').modal('show');
+	}
+		// 중복 확인 및 신고 버튼 클릭 시
+	    $('#reportButton').click(function() {
+	    	var reportReason = $('#modal-reportReason-input').val();
+	    	var freeBno = ${freeBoard.freeBno};
+	    	var uno = <%=session.getAttribute("loginUno")%>;
+
+	    	//내용이 비어있는 경우
+	    	if (reportReason.trim() === "") {
+	            alert("내용을 입력해 주세요.");
+	            return;
+	        }
+	    	
+	    	 console.log("reportReason:", reportReason); // reportReason 값을 로그에 출력
+	    	 console.log("freeBno:", freeBno); // qnaBno 값을 로그에 출력
+	    	 console.log("uno:", uno); // uno 값을 로그에 출력
+    	
+	        $.ajax({
+	            type: "POST",
+	            url: "<c:url value="/report/board-add"/>/"+freeBno, // 신고 처리 컨트롤러 URL
+	            //url: "/report/board-add/" + qnaBno, // 신고 처리 컨트롤러 URL
+	            data: JSON.stringify({ 
+	            	uno: uno,
+	            	reportReason: reportReason }),
+	            contentType: "application/json",
+	            success: function(response) {	            	
+	            	//신고 처리
+	                if (response === "success") {//신고 성공 시 모달 닫기
+	                    alert("신고가 접수되었습니다.");
+	                    $('#reportModal').modal('hide');
+	                } else if (response === "duplicate") {//중복 시 알림
+	                    alert("이미 신고된 게시글입니다.");
+	                    $('#reportModal').modal('hide');
+	                } else {
+	                	 alert("로그인이 필요합니다..");
+	                }
+	            }
+	        });
+	    });
+		
+		//취소 클릭 시 창 닫기
+		function closeReportModal() {
+	        $('#reportModal').modal('hide');
+	    }
+	</script>
+	
+	
+	
 	<!-- 댓글기능 관련 스크립트  -->
 	<script>
 		const url = new URL(window.location.href);
 		const freeBno = url.searchParams.get("freeBno");
 		let pageNum = 1;
 		let loginUno;
+		console.log("loginUno="+loginUno);
 		let freeCommentNo;
 		let loginUserStatus;
 		//댓글 조회
 		let showList = function(freeBno, pageNum) {
 			$.ajax({
-				type : 'GET',
-				url : '/GRGR1/freecomment/list/' + freeBno + "?pageNum="+ pageNum, // infoBno 값을 경로에 포함시킵니다.
-				headers : {
-					'Accept' : 'application/json'
-				},
+				type : 'GET', 
+				url : "<c:url value="/freecomment/list"/>/"+ freeBno, // infoBno 값을 경로에 포함시킵니다.
+				data: {"pageNum":pageNum},
 				success : function(data) {
 					
 					if(data.freeCommentList.length===0){
@@ -275,10 +385,11 @@
 						return;
 					}
 					
-					
 					loginUno = ${sessionScope.loginUno};
 					loginUserStatus = ${sessionScope.loginUserStatus};
 					console.log("loginUno :" + loginUno);
+					console.log("loginUserStatus :" + loginUserStatus);
+					
 			            resetReplyForm();
 			            renderComments(data.freeCommentList);
 			            renderPagination(data.commentPager);
@@ -314,7 +425,7 @@
 			} else { // 정상적으로 보이는 게시물
 				
 				if(comment.freeCommentGroup == comment.freeCommentNo){ //부모댓글
-					html += '<div class="comment-free" style="padding: 10px 30px;">';
+					html += '<div class="comment-info" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding-right: 20px">'
 							+ comment.nickname + '</span>';
 					html += '<span class="comment-date">'+ comment.freeCommentRegdate + '</span>';
@@ -328,6 +439,7 @@
 						//html += '<a href="#x" class="comment-modify"> <i class="far fa-comments fs-15 mr-5"></i>변경</a>';
 						html += '<a href="#x" class="comment-remove"> <i class="far fa-comments fs-15 mr-5"></i>삭제</a>';
 					}
+					console.log("삭제 loginUno"+ loginUno);
 					if (loginUserStatus === 1) {
 						html += '<a href="#x" class="comment-hide"> <i class="far fa-comments fs-15 mr-5"></i>숨김</a>';
 					}
@@ -335,7 +447,7 @@
 					html += '</p>';
 					 
 			 	} else { //자식댓글
-			 		html += '<div class="comment-free" style="padding: 10px 30px;">';
+			 		html += '<div class="comment-info" style="padding: 10px 30px;">';
 					html += '<span class="comment-author" style="padding: 0 20px 0 80px">'
 							+ comment.nickname + '</span>';
 					html += '<span class="comment-date">'+ comment.freeCommentRegdate + '</span>';
@@ -418,11 +530,34 @@
 		    $("#comment-reply").val("");
 		}
 		
+		//좋아요 상태 check
+		function checkLikedStatus(freeBno){
+			console.log("freeBno:"+freeBno)
+			$.ajax({
+				type : 'GET', 
+				url : "<c:url value="/freelike/status"/>/"+ freeBno, // freeBno 값을 경로에 포함시킵니다.
+				success : function(data) {
+					
+					if(data.isLiked){
+						 $("#like-button img").attr("src", "<c:url value='/images/heart_full.png'/>");
+					}else {
+		                $("#like-button img").attr("src", "<c:url value='/images/heart.png'/>");
+		            }
+					 $("#like-button span").text(data.likeCnt);
+				},
+				error : function(err) {
+					
+					console.error("좋아요 상태 파악에 실패하였습니다.", err);
+				}
+			});
+		}
 		
+		//페이지 로드시 실행될 것들
 		$(document).ready(function() {
 
 			$("#comment-reply").hide(); //대댓글 폼을 일단 숨김
-		    showList(freeBno, pageNum);
+			checkLikedStatus(freeBno); //좋아요 여부 표시
+		    showList(freeBno, pageNum); //댓글 list 출력
 		    
 
 		<!-- 대댓글 폼 --> */
@@ -442,15 +577,17 @@
 		    const commentGroup = $("#comment-reply").data('group');
 		    const replyContent = $("#comment-reply input[name='freeCommentContent']").val();
 
+		    /* "/GRGR/infocomment/write?infoBno=" + infoBno, */
 		    $.ajax({
 		        type: "POST",
-		        url: "<c:url value="/freecomment/write/"/>/" + freeBno,
+		        url: "<c:url value="/freecomment/write"/>/"+freeBno,
 		        headers: {
 		            'Content-Type': 'application/json'
 		        },
 		        data: JSON.stringify({
-		        	freeCommentGroup: commentGroup,
-		        	freeCommentContent: replyContent
+		        	"freeBno" : freeBno,
+		            "freeCommentGroup": commentGroup,
+		            "freeCommentContent": replyContent
 		        }),   
 		        success: function(response) {
 		            showList(freeBno, pageNum);
@@ -473,12 +610,12 @@
 
 		    // 댓글 삭제
 		    $("#comments-list").on("click", ".comment-remove", function() {
-		        let freeCommentNo = $(this).closest('li.comment').data('cno');
-		        console.log('freeCommentNo :' + freeCommentNo);
+		        let infoCommentNo = $(this).closest('li.comment').data('cno');
+		        console.log('infoCommentNo :' + infoCommentNo);
 
 		        $.ajax({
-		            type: 'PUT',
-		            url: '/GRGR1/freecomment/remove/' + freeCommentNo,
+		            type: 'PUT', 
+		            url: "<c:url value="/freecomment/remove"/>/" + freeCommentNo,
 		            dataType: 'text',
 		            success: function() {
 		                const commentLi = $('li[data-cno="' + freeCommentNo + '"]');
@@ -500,7 +637,7 @@
 
 		        $.ajax({
 		            type: 'PUT',
-		            url: '/GRGR1/freecomment/hide/' + freeCommentNo,
+		            url: "<c:url value="/freecomment/hide"/>/" + freeCommentNo,
 		            dataType: 'text',
 		            success: function() {
 		                const commentLi = $('li[data-cno="' + freeCommentNo + '"]');
@@ -524,7 +661,7 @@
 		            $('#reply').focus();
 		            return;
 		        }
-
+				/* '/GRGR/infocomment/write?infoBno=' + infoBno */
 		        $.ajax({
 		            type: 'POST',
 		            url: "<c:url value="/freecomment/write"/>/"+freeBno,
@@ -533,7 +670,7 @@
 		            },
 		            data: JSON.stringify({
 		            	freeBno: freeBno,
-		            	freeCommentContent: replyContent,
+		                freeCommentContent: replyContent,
 		            }),
 		            success: function(data) {
 		              //  alert(data);
@@ -546,8 +683,34 @@
 		            }
 		        });
 		    });
+		    
+		    // 좋아요 버튼 클릭
+		    $("#like-button").click(function(){
+		    	$.ajax({
+		    		type: 'post',
+		    		url: "<c:url value="/freelike/toggle"/>/"+freeBno,
+		    		success: function(data){
+		    			if(data.isLiked){
+							 $("#like-button img").attr("src", "<c:url value='/images/heart_full.png'/>");
+							 
+						} else {
+			                $("#like-button img").attr("src", "<c:url value='/images/heart.png'/>");
+			            }
+		    			
+		    			 $("#like-button span").text(data.likeCnt);
+		    		},
+		    		error: function(err) {
+		                console.error("좋아요버튼 오류입니다.", err);
+		            }
+		    		
+		    	});
+		    	
+		    });
 
 		});
+		
+		
+		
 	</script>
 
 	<script>

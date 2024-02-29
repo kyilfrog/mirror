@@ -33,7 +33,7 @@ public class FreeComment {
 	Date freeCommentRegdate;
 	Date freeCommentUpdate;
 	int freeCommentUpdateUno;
-	String nickname; //조회시에만 사용할 닉네임 변수
+	String nickname; 
 }
 	
 	

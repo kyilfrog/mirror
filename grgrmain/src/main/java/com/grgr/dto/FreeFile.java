@@ -16,15 +16,7 @@ CREATE SEQUENCE FREE_FILE_SEQ;
   
   
  
- 이름                   널?       유형           
--------------------- -------- ------------ 
-FREE_FILE_NO         NOT NULL NUMBER       
-FREE_BNO             NOT NULL NUMBER       
-FREE_FILE_ORIGIN              VARCHAR2(50) 
-FREE_FILE_UPLOAD            VARCHAR2(50) 
-FREE_FILE_REGDATE             DATE         
-FREE_FILE_UPDATE              DATE         
-FREE_FILE_UPDATE_UNO          NUMBER       
+ 
  */
 
 @Data

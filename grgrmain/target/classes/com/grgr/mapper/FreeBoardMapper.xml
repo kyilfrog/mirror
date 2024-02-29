@@ -70,7 +70,7 @@
 		select FREE_BNO, UNO,
 		 FREE_TITLE, FREE_CONTENT, FREE_LOC,
 		FREE_VIEW_CNT,
-		FREE_REPORT_NO,
+		FREE_REPORT_CNT,
 		FREE_BLINDSTATE, FREE_REGDATE, FREE_UPDATE,
 		FREE_UPDATE_UNO from free_board
 		where free_bno=#{freeBno}
@@ -102,7 +102,7 @@
 		SELECT FREE_BNO, UNO,
 		FREE_TITLE, FREE_CONTENT, FREE_LOC,
 		FREE_VIEW_CNT,	
-		FREE_REPORT_NO,
+		FREE_REPORT_CNT,
 		FREE_BLINDSTATE, FREE_REGDATE, FREE_UPDATE,
 		FREE_UPDATE_UNO
 		FROM
@@ -139,7 +139,7 @@
 	<update id="increaseFreeReportNo">
 		UPDATE free_board
 		SET
-		free_report_no = free_report_no +
+		free_report_cnt = free_report_cnt +
 		1
 		WHERE free_bno = #{freeBno}
 	</update>

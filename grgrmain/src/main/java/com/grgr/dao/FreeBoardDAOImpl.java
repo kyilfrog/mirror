@@ -18,7 +18,7 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 	private final SqlSession sqlSession;
 
 	
-	@Override
+	@Override 
 	public int freeBoardCount(Map<String, Object> map) {
 		// TODO Auto-generated method stub
 		return sqlSession.getMapper(FreeBoardMapper.class).freeBoardCount(map);
@@ -43,9 +43,9 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 	}
 
 	@Override
-	public int blindFreeBoard(int freeBno) {
+	public int blindFreeBoard(Map<String, Object> map) {
 		// TODO Auto-generated method stub
-		return sqlSession.getMapper(FreeBoardMapper.class).blindFreeBoard(freeBno);
+		return sqlSession.getMapper(FreeBoardMapper.class).blindFreeBoard(map);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 	}
 
 	@Override
-	public int increaseFreeReportNo(int freeBno) {
+	public int increaseFreeReportCnt(int freeBno) {
 		// TODO Auto-generated method stub
 		return sqlSession.getMapper(FreeBoardMapper.class).increaseFreeReportNo(freeBno);
 	}
@@ -95,5 +95,6 @@ public class FreeBoardDAOImpl implements FreeBoardDAO {
 		// TODO Auto-generated method stub
 		return sqlSession.getMapper(FreeBoardMapper.class).selectFreeFile(freeBno);
 	}
+
 
 }

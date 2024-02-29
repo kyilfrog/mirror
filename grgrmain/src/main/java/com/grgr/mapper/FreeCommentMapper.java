@@ -11,8 +11,8 @@ public interface FreeCommentMapper {
 	List<FreeComment> selectFreeCommentList(Map<String, Object> map);
 	int insertFreeComment(FreeComment freeComment);
 	int updateFreeComment(FreeComment freeComment);
-	int deleteFreeComment(Map<String, Object> map); // infoBno, uno(技记) 鞘夸
-	int blindFreeComment(Map<String, Object> map); //uno(技记), infoBno 鞘夸
+	int deleteFreeComment(Map<String, Object> map); 
+	int blindFreeComment(Map<String, Object> map); 
 	int increaseFreeCommentReportNo(int freeBno);
 	
 }

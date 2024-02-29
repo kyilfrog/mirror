@@ -13,7 +13,7 @@ public interface FreeBoardMapper {
 	int insertFreeBoard(FreeBoard freeBoard);
 	int updateFreeBoard(FreeBoard freeBoard);
 	int deleteFreeBoard(@Param("freeBno") int freeBno,@Param("uno") int uno);
-	int blindFreeBoard(int freeBno);
+	int blindFreeBoard(Map<String, Object> map);
 	int increaseFreeViewCnt(int freeBno);
 	int increaseFreeReportNo(int freeBno);
 	FreeBoard selectFreeBoard(int freeBno);

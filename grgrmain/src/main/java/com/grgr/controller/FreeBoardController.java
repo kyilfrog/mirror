@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.grgr.dto.FreeBoard;
 import com.grgr.dto.InfoBoard;
 import com.grgr.exception.FileUploadFailException;
+import com.grgr.exception.PostUpdateException;
 import com.grgr.exception.WriteNullException;
 import com.grgr.service.FreeBoardService;
 import com.grgr.util.SearchCondition;
@@ -45,8 +46,8 @@ public class FreeBoardController {
 	@GetMapping("/read")
 	public String freeBoardRead(@RequestParam("freeBno") int freeBno, SearchCondition searchCondition, Model model) {
 		try {
-			Map<String, Object> freeBoardWithFiles = freeBoardService.getFreeBoard(freeBno);
-			Integer prevFreeBno = freeBoardService.prevFreeBno(searchCondition, freeBno);
+			Map<String, Object> freeBoardWithFiles = freeBoardService.getFreeBoard(freeBno, freeBno);
+			Map<String, Object> prevFreeBno = freeBoardService.prevAndNextFreeBno(searchCondition, freeBno);
 			Integer nextFreeBno = freeBoardService.nextFreeBno(searchCondition, freeBno);
 
 			model.addAllAttributes(freeBoardWithFiles);
@@ -82,7 +83,7 @@ public class FreeBoardController {
 	public String freeBoardModify(int freeBno, SearchCondition searchCondition, HttpSession session, Model model) {
 		Integer loginUno = (Integer) session.getAttribute("loginUno");
 
-		Map<String, Object> freeBoardWithFiles = freeBoardService.getFreeBoard(freeBno);
+		Map<String, Object> freeBoardWithFiles = freeBoardService.getFreeBoard(freeBno, loginUno);
 		FreeBoard freeBoard = (FreeBoard) freeBoardWithFiles.get("freeBoard");
 		if (loginUno != freeBoard.getUno()) {
 			return "/404";
@@ -94,19 +95,19 @@ public class FreeBoardController {
 
 	// 글 수정 제출
 	@PostMapping(value = "/modify")
-	public String freeBoardModify(FreeBoard freeBoard, RedirectAttributes rattr) throws WriteNullException {
+	public String freeBoardModify(FreeBoard freeBoard, RedirectAttributes rattr) throws WriteNullException, FileUploadFailException, IOException {
 		if (freeBoard.getFreeTitle() == null || freeBoard.getFreeContent() == null) {
 			throw new WriteNullException("제목 또는 내용이 비어있습니다.");
 		}
 
-		freeBoardService.modifyFreeBoard(freeBoard);
+		freeBoardService.modifyFreeBoard(freeBoard, null);
 		return "redirect:/freeboard/read";
 
 	}
 
 	@RequestMapping("/remove")
 	public String freeBoardRemove(@RequestParam Integer freeBno, @RequestParam Integer uno, int pageNum,
-			RedirectAttributes rattr) {
+			RedirectAttributes rattr) throws PostUpdateException {
 		freeBoardService.removeFreeBoard(freeBno, uno);
 		rattr.addFlashAttribute("pageNum", pageNum);
 		return "redirect:/freeboard/list?pageNum=" + pageNum;

@@ -205,7 +205,7 @@
 		U.UNO
 		where
 		<include refid="search" />
-		P.product_id &lt; #{productId} and P.product_blindstate = 1
+		P.product_id &gt; #{productId} and P.product_blindstate = 1
 	</select>
 
 </mapper>

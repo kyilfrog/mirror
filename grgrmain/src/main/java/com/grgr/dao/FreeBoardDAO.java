@@ -13,9 +13,9 @@ public interface FreeBoardDAO {
 	int insertFreeBoard(FreeBoard freeBoard);
 	int updateFreeBoard(FreeBoard freeBoard);
 	int deleteFreeBoard(int freeBno, int uno);
-	int blindFreeBoard(int freeBno);
+	int blindFreeBoard(Map<String, Object> map);
 	int increaseFreeViewCnt(int freeBno);
-	int increaseFreeReportNo(int freeBno);
+	int increaseFreeReportCnt(int freeBno);
 	FreeBoard selectFreeBoard(int freeBno);
 	Integer selectPrevFreeBno(Map<String, Object> map);
 	Integer selectNextFreeBno(Map<String, Object> map);
